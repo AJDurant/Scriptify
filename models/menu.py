@@ -5,8 +5,11 @@
 ## Customize your APP title, subtitle and menus here
 #########################################################################
 
-response.logo = A(B('web',SPAN(2),'py'),XML('&trade;&nbsp;'),
-                  _class="brand",_href="http://www.web2py.com/")
+response.logo = A(
+                    B('IAPTGroup12'),
+                    _class="navbar-brand",
+                    _href="/IAPTGroup12"
+                )
 response.title = request.application.replace('_',' ').title()
 response.subtitle = ''
 
@@ -136,4 +139,4 @@ def _():
          )]
 if DEVELOPMENT_MENU: _()
 
-if "auth" in locals(): auth.wikimenu() 
+if "auth" in locals(): auth.wikimenu()
