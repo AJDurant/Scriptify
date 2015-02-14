@@ -525,7 +525,7 @@
       var flash = $('.flash');
       web2py.hide_flash();
       flash.html(message).addClass(status);
-      if(flash.html()) flash.append('<span id="closeflash"> &times; </span>').slideDown();
+      if(flash.html()) flash.append('<button id="closeflash" type="button" class="close"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>').slideDown();
     },
     hide_flash: function () {
       $('.flash').fadeOut(0).html('');

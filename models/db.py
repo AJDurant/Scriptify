@@ -85,3 +85,7 @@ use_janrain(auth, filename='private/janrain.key')
 
 ## after defining tables, uncomment below to enable auditing
 # auth.enable_record_versioning(db)
+
+
+# set formstyle to nice bootstrap
+auth.settings.formstyle = 'bootstrap3_inline'
