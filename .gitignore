@@ -4,3 +4,8 @@ databases/
 errors/
 sessions/
 uploads/
+
+# Temporary files
+*.pyc
+.pythonhistory
+
