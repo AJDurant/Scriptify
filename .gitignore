@@ -6,6 +6,7 @@ sessions/
 uploads/
 
 # Temporary files
-*.pyc
 .pythonhistory
+*.pyc
+*.swp
 
