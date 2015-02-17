@@ -39,34 +39,39 @@ auth = Auth(db)
 service = Service()
 plugins = PluginManager()
 
+
+# Define custom user table
+db.define_table(
+    auth.settings.table_user_name,
+    Field('username', length=128, unique=True, comment='Unique name used for login, and publicly on the website'),
+    Field('realname', length=128, default='', label='Name', comment='Your full name'),
+    Field('email', length=128, default='', unique=True),                                    # required
+    Field('password', 'password', length=512, readable=False, label='Password'),            # required
+    Field('registration_key', length=512, writable=False, readable=False, default=''),      # required
+    Field('reset_password_key', length=512, writable=False, readable=False, default=''),    # required
+    Field('registration_id', length=512, writable=False, readable=False, default=''),       # required
+    format='%(realname)s (%(username)s)')
+
+## User validators
+custom_auth_table = db[auth.settings.table_user_name] # get the custom_auth_table
+custom_auth_table.username.requires = [IS_NOT_EMPTY(error_message=auth.messages.is_empty), IS_NOT_IN_DB(db, custom_auth_table.username)]
+custom_auth_table.realname.requires = IS_NOT_EMPTY(error_message=auth.messages.is_empty)
+custom_auth_table.password.requires = [IS_STRONG(), CRYPT()]
+custom_auth_table.email.requires = [
+    IS_EMAIL(error_message=auth.messages.invalid_email),
+    IS_NOT_IN_DB(db, custom_auth_table.email)]
+
+# tell auth to use custom_auth_table
+auth.settings.table_user = custom_auth_table
+
+
 ## create all tables needed by auth if not custom tables
-auth.define_tables(username=False, signature=False)
+auth.define_tables(username=True, signature=False)
 
 ## configure auth policy
 auth.settings.registration_requires_verification = False
 auth.settings.registration_requires_approval = False
 auth.settings.reset_password_requires_verification = True
-
-#########################################################################
-## Define your tables below (or better in another model file) for example
-##
-## >>> db.define_table('mytable',Field('myfield','string'))
-##
-## Fields can be 'string','text','password','integer','double','boolean'
-##       'date','time','datetime','blob','upload', 'reference TABLENAME'
-## There is an implicit 'id integer autoincrement' field
-## Consult manual for more options, validators, etc.
-##
-## More API examples for controllers:
-##
-## >>> db.mytable.insert(myfield='value')
-## >>> rows=db(db.mytable.myfield=='value').select(db.mytable.ALL)
-## >>> for row in rows: print row.id, row.myfield
-#########################################################################
-
-## after defining tables, uncomment below to enable auditing
-# auth.enable_record_versioning(db)
-
 
 # set formstyle to nice bootstrap
 auth.settings.formstyle = 'bootstrap3_inline'
