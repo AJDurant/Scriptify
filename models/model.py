@@ -16,6 +16,10 @@ db.define_table(
     Field('status', 'reference project_status', writable=False, readable=False, required=True),
     format='%(title)s'
 )
+# Project data constraints
+db.project.title.requires = IS_NOT_EMPTY()
+db.project.owner.requires = IS_IN_DB(db, db.auth_user.id, '%(username)s')
+db.project.status.requires = IS_IN_DB(db, db.project_status.id, '%(name)s')
 
 # Lookup table for field types
 db.define_table(
@@ -32,6 +36,10 @@ db.define_table(
     Field('status', 'reference field_type', required=True),
     format='%(project)s: %(name)s'
 )
+# Field data constraints
+db.field.project.requires = IS_IN_DB(db, db.project.id, '%(title)s')
+db.field.name.requires = IS_NOT_EMPTY()
+db.field.status.requires = IS_IN_DB(db, db.field_type.id, '%(name)s', error_message='You must select a field type')
 
 # Table for Project documents
 db.define_table(
@@ -46,6 +54,10 @@ db.define_table(
         required=True),
     format='%(name)s'
 )
+# Document data constraints
+db.document.project.requires = IS_IN_DB(db, db.project.id, '%(title)s')
+db.document.name.requires = IS_NOT_EMPTY()
+db.document.img.requires = IS_IMAGE(extensions=('png', 'jpg', 'jpeg', 'gif'))
 
 # Table for User Contributions
 db.define_table(
@@ -71,4 +83,7 @@ db.define_table(
     Field('status', 'reference contribution_status', writable=False, readable=False, required=True),
     format='%(field)s - %(contribution)s'
 )
-
+db.metadata.contribution.requires = IS_IN_DB(db, db.contribution.id, '%(document)s')
+db.metadata.field.requires = IS_IN_DB(db, db.field.id, '%(name)s')
+db.metadata.value.requires = IS_NOT_EMPTY()
+db.metadata.status.requires = IS_IN_DB(db, db.contribution_status.id, '%(name)s')
