@@ -11,7 +11,7 @@
 
 
 # Setup db object
-DAL('sqlite://storage.sqlite',pool_size=1,check_reserved=['all'])
+db = DAL('sqlite://storage.sqlite',pool_size=1,check_reserved=['all'])
 
 
 ## by default give a view/generic.extension to all actions from localhost
