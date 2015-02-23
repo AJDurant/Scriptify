@@ -5,6 +5,9 @@ errors/
 sessions/
 uploads/
 
+# Temporary files
+.pythonhistory
 *.bak
-
 *.log
+*.pyc
+*.swp
