@@ -89,15 +89,15 @@ db.metadata.data_value.requires = IS_NOT_EMPTY()
 db.metadata.status.requires = IS_IN_DB(db, db.contribution_status.id, '%(name)s')
 
 
-if db(db.project_status.id < 0):
+if db(db.project_status.id > 0).count() == 0:
     db.project_status.insert(name='Closed')
     db.project_status.insert(name='Open')
 
-if db(db.field_type.id < 0):
+if db(db.field_type.id > 0).count() == 0:
     db.field_type.insert(name='Short Text')
     db.field_type.insert(name='Long Text')
 
-if db(db.contribution_status.id < 0):
+if db(db.contribution_status.id > 0).count() == 0:
     db.contribution_status.insert(name='Pending')
     db.contribution_status.insert(name='Accepted')
     db.contribution_status.insert(name='Rejected')
