@@ -21,8 +21,22 @@ def index():
 
 
 def search():
-    return dict()
+    if request.vars.q is not None:
+        search_request = request.vars.q
+    else:
+        redirect(URL('static', "404.html"))
 
+    search_term = "%" + search_request + "%"
+    
+    projects = db((db.project.title).like(search_term)).select()
+
+    if len(projects) is not 0:
+        response.title = "Searching for '" + search_request + "'"
+        response.subtitle = "Displaying " + str(len(projects)) + " result(s)"
+    else:
+        response.title = "No results for '" + search_request + "'"
+
+    return dict(projects = projects)
 
 def user():
     """

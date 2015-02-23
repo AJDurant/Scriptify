@@ -1,0 +1,5 @@
+{{extend 'layout.html'}}
+
+{{for project in projects:}}
+	{{include "subviews/display-projects.html"}}
+{{pass}}
