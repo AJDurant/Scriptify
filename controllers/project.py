@@ -25,8 +25,9 @@ def view():
     """
     project_id = request.args[0] # Get from URL
     project = db(db.project.id == project_id).select().first()
+    documents = db(db.doc.project == project_id).select()
     response.title = project.title
-    return dict(project=project)
+    return dict(project=project, documents=documents)
 
 @auth.requires_login()
 def view_mine():
@@ -56,3 +57,28 @@ def create():
         response.flash = 'record inserted'
         redirect(URL('project', 'view_mine'))
     return dict(form=form, cat="This is my cat")
+
+@auth.requires_login()
+def open():
+    """
+    Allow managers to open their projects for contributions
+
+    """
+    project_id = request.args[0] # Get from URL
+    project = db(db.project.id == project_id).select().first()
+    if (project.manager == auth.user_id):
+        project.update_record(status=2)
+
+    redirect(URL('project', 'view_mine'))
+
+@auth.requires_login()
+def close():
+    """
+    Allow managers to close their projects
+
+    """
+    project_id = request.args[0] # Get from URL
+    project = db(db.project.id == project_id).select().first()
+    if (project.manager == auth.user_id):
+        project.update_record(status=1)
+    redirect(URL('project', 'view_mine'))

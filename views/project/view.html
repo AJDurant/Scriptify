@@ -1,1 +1,6 @@
 {{extend 'layout.html'}}
+
+<h2>Project documents</h2>
+{{ for doc in documents: }}
+<h4><a href="{{ =URL('document', 'review', args=[doc.id]) }}"></a></h4>
+{{ pass }}
