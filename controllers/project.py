@@ -82,3 +82,14 @@ def close():
     if (project.manager == auth.user_id):
         project.update_record(status=1)
     redirect(URL('project', 'view_mine'))
+
+def delete():
+    """
+    Allow managers to delete their projects
+
+    """
+    project_id = request.args[0] # Get from URL
+    project = db(db.project.id == project_id).select().first()
+    if (project.manager == auth.user_id):
+        project.delete_record()
+    redirect(URL('project', 'view_mine'))
