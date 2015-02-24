@@ -27,9 +27,8 @@ response.google_analytics_id = None
 
 response.menu = [
     (T('Create a project'), False, URL('project', 'create'), []),
-    (T('Browse Projects'), False, URL('project', 'create'), []),
-    (T('My Projects'), False, URL('default', 'user/profile'), [])
+    (T('Browse Projects'), False, URL('project', 'view_open'), []),
+    (T('My Projects'), False, URL('project', 'view_mine'), [])
 ]
-
 
 if "auth" in locals(): auth.wikimenu()
