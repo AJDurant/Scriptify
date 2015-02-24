@@ -58,7 +58,7 @@ custom_auth_table = db[auth.settings.table_user_name] # get the custom_auth_tabl
 custom_auth_table.username.requires = [IS_NOT_EMPTY(error_message=auth.messages.is_empty), IS_NOT_IN_DB(db, custom_auth_table.username)]
 custom_auth_table.first_name.requires = IS_NOT_EMPTY(error_message=auth.messages.is_empty)
 custom_auth_table.last_name.requires = IS_NOT_EMPTY(error_message=auth.messages.is_empty)
-custom_auth_table.password.requires = [IS_STRONG(), CRYPT()]
+custom_auth_table.password.requires = [IS_STRONG(min=6, upper=1, number=1, special=0), CRYPT()]
 custom_auth_table.email.requires = [
     IS_EMAIL(error_message=auth.messages.invalid_email),
     IS_NOT_IN_DB(db, custom_auth_table.email)]
