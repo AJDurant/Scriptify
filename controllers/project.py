@@ -52,4 +52,3 @@ def create():
         response.flash = 'record inserted'
         redirect(URL('project', 'view_mine'))
     return dict(form=form, cat="This is my cat")
-
