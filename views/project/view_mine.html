@@ -1,7 +1,5 @@
 {{extend 'layout.html'}}
 
-<h2>These are all your projects:</h2>
-
 {{ for project in projects: }}
 <h4><a href="{{ =URL('project', 'view', args=[project.id]) }}">{{ =project.title }}</a></h4>
 {{ pass }}

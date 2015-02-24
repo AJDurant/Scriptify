@@ -13,6 +13,7 @@ def view_open():
 
     """
     projects = db(db.project.status == 2).select() # Select projects that are open for croudsourcing
+    response.title = "Projects open for contributions"
     return dict(projects=projects)
 
 def view():
@@ -24,6 +25,7 @@ def view():
     """
     project_id = request.args[0] # Get from URL
     project = db(db.project.id == project_id).select().first()
+    response.title = project.title
     return dict(project=project)
 
 @auth.requires_login()
@@ -33,6 +35,7 @@ def view_mine():
 
     """
     projects = db(db.project.manager == auth.user_id).select()
+    response.title = "Projects you created"
     return dict(projects=projects)
 
 @auth.requires_login()
@@ -45,6 +48,7 @@ def create():
     - Fields
 
     """
+    response.title = "Create a new project"
     form = SQLFORM(db.project)
     form.vars.manager = auth.user_id
     form.vars.status = 1 # Project status - closed.
