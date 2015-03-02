@@ -15,10 +15,10 @@ def contribute():
     """
     pid = int (request.vars['pid'])
     project = db(db.project.id==pid).select().first()
-    fields = db(db.field.project==pid).select().first()
-    doc = db(db.doc.project==pid).select().first()
-    form = SQLFORM (db.field, fields)
-    return dict(form=form, doc=doc)
+    fields = db(db.field.project==pid).select()
+    doc = db(db.doc.project==pid).select()
+    form = SQLFORM (db.metadata)
+    return dict(form=form, project=project, doc=doc, fields=fields)
 
 def review():
     """
