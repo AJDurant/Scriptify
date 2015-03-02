@@ -10,14 +10,10 @@
 #########################################################################
 
 def index():
-    """
-    example action using the internationalization operator T and flash
-    rendered by views/default/index.html or views/generic.html
+    response.title = "Welcome to Scriptify"
+    projects = db(db.project.id > 0).select(orderby=~db.project.id, limitby=(0, 6)) #Need to add constraint for only open projects
 
-    if you need a simple wiki simply replace the two lines below with:
-    return auth.wiki()
-    """
-    return dict(message=T('Hello World'))
+    return dict(projects = projects)
 
 
 def search():
@@ -28,7 +24,7 @@ def search():
 
     search_term = "%" + search_request + "%"
     
-    projects = db((db.project.title).like(search_term)).select()
+    projects = db((db.project.title).like(search_term)).select() #Need to add constraint for only open projects
 
     if len(projects) is not 0:
         response.title = "Searching for '" + search_request + "'"
