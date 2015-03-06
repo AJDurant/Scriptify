@@ -8,10 +8,8 @@
 		{{pass}}
     </div>
     <div class="col-md-6">
-		{{for row in doc:}}
-			<img class="big" src="{{=URL(c='default',f='download', args=row.img)}}" height=512 width=384 alt="..." />
-			{{pass}}
+			<img class="big" src="{{=URL(c='default',f='download', args=doc.img)}}" height=512 width=384 alt="..." />
     </div>
 </div>
-{{=fields}}
 {{pass}}
+{{=fields}}
