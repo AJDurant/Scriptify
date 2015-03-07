@@ -50,13 +50,62 @@ def create():
 
     """
     response.title = "Create a new project"
-    form = SQLFORM(db.project)
+    form = SQLFORM(db.project, formstyle='bootstrap3_inline')
     form.vars.manager = auth.user_id
     form.vars.status = 1 # Project status - closed.
     if form.process().accepted:
-        response.flash = 'record inserted'
-        redirect(URL('project', 'view_mine'))
-    return dict(form=form, cat="This is my cat")
+        session.flash = 'Project Saved'
+        redirect(URL('add_field', args=form.vars.id))
+    return dict(form=form)
+
+@auth.requires_login()
+def add_field():
+    # Get project or redirect
+    project = db.project(request.args(0,cast=int)) or redirect(URL('project', 'create'))
+
+    response.title = project.title
+    response.subtitle = "Add Field"
+
+    form = SQLFORM(
+        db.field,
+        buttons = [
+            TAG.button('Save Field', _class="btn btn-primary", _type="submit"),
+            TAG.button('Add Documents', _class="btn btn-success pull-right", _type="button", _onClick = "window.location='%s'" % URL('add_doc', args=project.id))
+        ],
+        formstyle='bootstrap3_inline')
+    form.vars.project = project.id
+
+    if form.process().accepted:
+        response.flash = 'Field Saved'
+
+    fields = db(db.field.project==project.id).select()
+
+    return dict(fields=fields, form=form)
+
+@auth.requires_login()
+def add_doc():
+    # Get project or redirect
+    project = db.project(request.args(0,cast=int)) or redirect(URL('project', 'create'))
+
+    response.title = project.title
+    response.subtitle = "Add Document"
+
+    form = SQLFORM(
+        db.doc,
+        buttons = [
+            TAG.button('Save Document', _class="btn btn-primary", _type="submit"),
+            TAG.button('Finish', _class="btn btn-success pull-right", _type="button", _onClick = "window.location='%s'" % URL('view_mine'))
+        ],
+        formstyle='bootstrap3_inline'
+    )
+    form.vars.project = project.id
+
+    if form.process().accepted:
+        response.flash = 'Document Saved'
+
+    docs = db(db.doc.project==project.id).select()
+
+    return dict(docs=docs, form=form)
 
 @auth.requires_login()
 def open():

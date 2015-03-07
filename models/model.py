@@ -32,8 +32,8 @@ db.define_table(
 db.define_table(
     'field',
     Field('project', 'reference project', writable=False, readable=False, required=True),
-    Field('name', required=True),
-    Field('status', 'reference field_type', required=True),
+    Field('name', required=True, label='Field Name'),
+    Field('status', 'reference field_type', required=True, label='Field Type'),
     format='%(project)s: %(name)s'
 )
 # Field data constraints
@@ -45,7 +45,7 @@ db.field.status.requires = IS_IN_DB(db, db.field_type.id, '%(name)s', error_mess
 db.define_table(
     'doc',
     Field('project', 'reference project', writable=False, readable=False, required=True),
-    Field('name', required=True),
+    Field('name', required=True, label='Document Name'),
     Field('img',
         'upload',
         label='Document Image',
