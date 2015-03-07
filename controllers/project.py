@@ -50,7 +50,9 @@ def create():
 
     """
     response.title = "Create a new project"
-    form = SQLFORM(db.project, formstyle='bootstrap3_inline')
+    form = SQLFORM(db.project,
+        submit_button='Save and Add Fields',
+        formstyle='bootstrap3_inline')
     form.vars.manager = auth.user_id
     form.vars.status = 1 # Project status - closed.
     if form.process().accepted:
