@@ -23,8 +23,12 @@ def view():
     Link users to contribute to a document
 
     """
-    project_id = request.args[0] # Get from URL
-    project = db(db.project.id == project_id).select().first()
+    # Get project or redirect
+    project = db.project(request.args(0,cast=int)) or redirect(request.env.http_referer)
+    # redirect if project not open
+    if project.status != 2:
+        redirect(request.env.http_referer)
+
     documents = db(db.doc.project == project_id).select()
     response.title = project.title
     return dict(project=project, documents=documents)
@@ -115,8 +119,9 @@ def open():
     Allow managers to open their projects for contributions
 
     """
-    project_id = request.args[0] # Get from URL
-    project = db(db.project.id == project_id).select().first()
+    # Get project or redirect
+    project = db.project(request.args(0,cast=int)) or redirect(request.env.http_referer)
+
     if (project.manager == auth.user_id):
         project.update_record(status=2)
 
@@ -128,8 +133,9 @@ def close():
     Allow managers to close their projects
 
     """
-    project_id = request.args[0] # Get from URL
-    project = db(db.project.id == project_id).select().first()
+    # Get project or redirect
+    project = db.project(request.args(0,cast=int)) or redirect(request.env.http_referer)
+
     if (project.manager == auth.user_id):
         project.update_record(status=1)
     redirect(URL('project', 'view_mine'))
@@ -139,8 +145,9 @@ def delete():
     Allow managers to delete their projects
 
     """
-    project_id = request.args[0] # Get from URL
-    project = db(db.project.id == project_id).select().first()
+    # Get project or redirect
+    project = db.project(request.args(0,cast=int)) or redirect(request.env.http_referer)
+
     if (project.manager == auth.user_id):
         project.delete_record()
     redirect(URL('project', 'view_mine'))
