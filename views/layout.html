@@ -79,10 +79,9 @@ Based upon the defualt web2py layout, but edited
         <div class="flash">{{=response.flash or ''}}</div>
 
         <ol class="breadcrumb">
-            <li><a href="#">Home</a></li>
-            <li><a href="#">Library</a></li>
-            <li class="active">Data</li>
+            {{=breadcrumbs(session.titleargs) }}
         </ol>
+
 
         <div class="container">
 
