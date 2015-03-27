@@ -44,7 +44,8 @@ plugins = PluginManager()
 db.define_table(
     auth.settings.table_user_name,
     Field('username', length=128, unique=True, comment='Unique name used for login, and publicly on the website'),
-    Field('realname', length=128, default='', label='Name', comment='Your full name'),
+    Field('first_name', length=128, default='', label='First Name', comment='Your first name'),
+    Field('last_name', length=128, default='', label='Last Name', comment='Your last name'),
     Field('email', length=128, default='', unique=True),                                    # required
     Field('password', 'password', length=512, readable=False, label='Password'),            # required
     Field('registration_key', length=512, writable=False, readable=False, default=''),      # required
@@ -55,8 +56,9 @@ db.define_table(
 ## User validators
 custom_auth_table = db[auth.settings.table_user_name] # get the custom_auth_table
 custom_auth_table.username.requires = [IS_NOT_EMPTY(error_message=auth.messages.is_empty), IS_NOT_IN_DB(db, custom_auth_table.username)]
-custom_auth_table.realname.requires = IS_NOT_EMPTY(error_message=auth.messages.is_empty)
-custom_auth_table.password.requires = [IS_STRONG(), CRYPT()]
+custom_auth_table.first_name.requires = IS_NOT_EMPTY(error_message=auth.messages.is_empty)
+custom_auth_table.last_name.requires = IS_NOT_EMPTY(error_message=auth.messages.is_empty)
+custom_auth_table.password.requires = [IS_STRONG(min=6, upper=1, number=1, special=0), CRYPT()]
 custom_auth_table.email.requires = [
     IS_EMAIL(error_message=auth.messages.invalid_email),
     IS_NOT_IN_DB(db, custom_auth_table.email)]

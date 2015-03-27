@@ -1,0 +1,19 @@
+{{extend 'layout.html'}}
+
+<div class="col-md-4">
+    <h3>Current Documents</h3>
+    <ul>
+        {{for doc in docs:}}
+            <li>{{=doc.name}}
+                <img src="{{=URL('default', 'download',args=doc.img)}}" class="img-responsive" align="right">
+            </li>
+        {{pass}}
+    </ul>
+</div>
+
+<div class="col-md-8">
+    <h3>New Document</h3>
+    {{ =form }}
+</div>
+
+{{response.files.insert(4,URL('static','js/form_fix.js'))}}
