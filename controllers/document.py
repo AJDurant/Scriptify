@@ -13,30 +13,36 @@ def contribute():
     Displays document image and project fields
 
     """
-    pid = int (request.vars['pid'])
-    docid = int (request.vars['docid'])
-    project = db(db.project.id==pid).select().first()
-    fields = db(db.field.project==pid).select()
-    doc = db(db.doc.id==docid).select().first()
-    contribid=db.contribution.insert (doc=doc.id,contributor=auth.user.id)
-    """
-	Number of problems with this:
-	Dynamic number of forms with dynamic fields referencing dynamically documents. (images)
-	As of now, this functionality isn't programmed.
-	"""
-    form = SQLFORM.factory (db.metadata,
-    Field ("reference",default=doc.id,readable=False,writable=False),
-    Field ("contribution",default=contribid,readable=False,writable=False))
-    if form.accepts (request,session):
-        redirect (URL('document','contribute.html',vars=dict(pid=pid,docid=docid+1)))
-    return dict(form=form, project=project, doc=doc, fields=fields)
+    # Get document or redirect
+    doc = db.doc(request.args(0,cast=int)) or redirect(request.env.http_referer)
+    project = db.project(doc.project)
+    fields = db(db.field.project==project.id).select()
 
+    formfields = []
+    for item in fields:
+        formfields.append(Field(item.name, type=item.status.fname))
+
+    form = SQLFORM.factory(*formfields,
+        submit_button='Contibute',
+        formstyle='bootstrap3_inline'
+    )
+
+    if form.process().accepted:
+        response.flash = 'form accepted'
+    elif form.errors:
+        response.flash = 'form has errors'
+
+    response.title = 'Contribute'
+    response.subtitle = doc.name + ' (' + project.title + ')'
+    return locals()
+
+@auth.requires_login()
 def review():
     """
     Displays document and all contributed fields for accept/reject
 
     """
-    doc_id = request.args[0] # Get from URL
-    doc = db(db.doc.id == doc_id).select().first()
+    # Get document or redirect
+    doc = db.doc(request.args(0,cast=int)) or redirect(request.env.http_referer)
 
     return dict()

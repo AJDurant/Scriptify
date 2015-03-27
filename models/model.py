@@ -25,6 +25,7 @@ db.project.status.requires = IS_IN_DB(db, db.project_status.id, '%(name)s')
 db.define_table(
     'field_type',
     Field('name', required=True),
+    Field('fname', required=True),
     format='%(name)s'
 )
 
@@ -94,8 +95,8 @@ if db(db.project_status.id > 0).count() == 0:
     db.project_status.insert(name='Open')
 
 if db(db.field_type.id > 0).count() == 0:
-    db.field_type.insert(name='Short Text')
-    db.field_type.insert(name='Long Text')
+    db.field_type.insert(name='Short Text', fname='string')
+    db.field_type.insert(name='Long Text', fname='text')
 
 if db(db.contribution_status.id > 0).count() == 0:
     db.contribution_status.insert(name='Pending')

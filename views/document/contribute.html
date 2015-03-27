@@ -1,15 +1,15 @@
 {{extend 'layout.html'}}
-<h3>{{=project.title}}</h3>
+
 <div class="row">
     <div class="col-md-6">
-	{{for row in fields:}}
-		<h4>{{=row.name}}</h4>
-        {{=form}}
-		{{pass}}
+    {{=form}}
     </div>
     <div class="col-md-6">
-			<img class="big" src="{{=URL(c='default',f='download', args=doc.img)}}" height=512 width=384 alt="..." />
+        <img src="{{=URL('default', 'download', args=doc.img)}}" class="img-responsive" alt="{{doc.name}}">
     </div>
 </div>
-{{pass}}
+
+ <br>
+{{=doc}} <br>
+{{=project}} <br>
 {{=fields}}

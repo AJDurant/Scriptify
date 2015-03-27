@@ -1,0 +1,9 @@
+<div class="col-md-4">
+    <div class="thumbnail">
+      <div class="caption center">
+        <h3>{{=doc.name}}</h3>
+        <img src="{{=URL('default', 'download', args=doc.img)}}" class="img-responsive" alt="{{doc.name}}">
+        <p><a href="{{=URL('document', 'contribute', args=doc.id)}}" class="btn btn-default" role="button">Contribute</a></p>
+      </div>
+    </div>
+</div>
