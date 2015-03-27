@@ -1,0 +1,17 @@
+{{extend 'layout.html'}}
+
+<div class="col-md-4">
+    <h3>Current Fields</h3>
+    <ul>
+        {{for field in fields:}}
+            <li>{{=field.name}} - {{=field.status.name}}</li>
+        {{pass}}
+    </ul>
+</div>
+
+<div class="col-md-8">
+    <h3>New Field</h3>
+    {{ =form }}
+</div>
+
+{{response.files.insert(4,URL('static','js/form_fix.js'))}}

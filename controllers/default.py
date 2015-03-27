@@ -23,7 +23,7 @@ def search():
         redirect(URL('static', "404.html"))
 
     search_term = "%" + search_request + "%"
-    
+
     projects = db((db.project.title).like(search_term)).select() #Need to add constraint for only open projects
 
     if len(projects) is not 0:
@@ -56,3 +56,6 @@ def user():
         pass
 
     return locals()
+
+def download():
+    return response.download(request, db)
