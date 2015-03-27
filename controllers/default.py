@@ -24,7 +24,7 @@ def search():
 
     search_term = "%" + search_request + "%"
 
-    projects = db((db.project.title).like(search_term)).select() #Need to add constraint for only open projects
+    projects = db((db.project.title).like(search_term) & (db.project.status == 2)).select() #Need to add constraint for only open projects
 
     if len(projects) is not 0:
         response.title = "Searching for '" + search_request + "'"
