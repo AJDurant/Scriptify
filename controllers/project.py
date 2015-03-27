@@ -28,6 +28,7 @@ def view():
 
     documents = db(db.doc.project == project.id).select()
     response.title = project.title
+    response.subtitle = 'Project Documents'
     return dict(project=project, documents=documents)
 
 @auth.requires_login()
