@@ -5,6 +5,9 @@ This is the document controller
 
 """
 
+from gluon.custom_import import track_changes; track_changes(True) #enable tracking changes of modules
+from bootstrap_widget import BootstrapRadio
+
 @auth.requires_login()
 def contribute():
     """
@@ -52,6 +55,8 @@ def contribute():
 
     response.title = 'Contribute'
     response.subtitle = doc.name + ' (' + doc.project.title + ')'
+
+    response.view = 'document/doc.html'
     return locals()
 
 @auth.requires_login()
@@ -61,6 +66,37 @@ def review():
 
     """
     # Get document or redirect
-    doc = db.doc(request.args(0,cast=int)) or redirect(request.env.http_referer)
+    doc = db.doc(request.args(0,cast=int)) or redirect(URL('project', 'view_mine'))
 
-    return dict()
+    # Only allow managers to review documents
+    if (doc.project.manager != auth.user_id):
+        redirect(URL('project', 'view_mine'))
+
+    # Get fields for the document's project
+    fields = db(db.field.project==doc.project.id).select()
+
+    # Construct a list of field contributions for use in a form factory
+    formfields = []
+    for item in fields:
+        item.contributions = db(db.metadata.field == item.id).select()
+        field_options = [(contrib.id, contrib.data_value) for contrib in item.contributions]
+        formfields.append(
+            Field(
+                item.name,
+                type='list:string',
+                requires=IS_IN_SET(field_options, zero='Reject Contributions'),
+                widget=BootstrapRadio.widget
+            )
+        )
+
+    # Construct an SQLFORM from the generated list of fields
+    form = SQLFORM.factory(*formfields,
+        submit_button='Submit Review',
+        formstyle='bootstrap3_inline'
+    )
+
+    response.title = 'Review'
+    response.subtitle = doc.name + ' (' + doc.project.title + ')'
+
+    response.view = 'document/doc.html'
+    return locals()
