@@ -1,8 +1,7 @@
 """
 This is the document controller
- - Contribute
- - Review
-
+ - contribute
+ - review
 
 """
 
@@ -15,19 +14,26 @@ def contribute():
     """
     # Get document or redirect
     doc = db.doc(request.args(0,cast=int)) or redirect(request.env.http_referer)
+
+    # Get fields for the document's project
     fields = db(db.field.project==doc.project.id).select()
 
+    # Construct a list of fields for use in a form factory, with the defined field type
     formfields = []
     for item in fields:
         formfields.append(Field(item.name, type=item.status.fname))
 
+    # Construct an SQLFORM from the generated list of fields
     form = SQLFORM.factory(*formfields,
         submit_button='Contibute',
         formstyle='bootstrap3_inline'
     )
 
     if form.process().accepted:
+        # Create a new contribution to link metadata to
         contribid = db.contribution.insert(doc=doc.id, contributor=auth.user_id)
+
+        # Insert each submitted field into the db for the contribution
         for (key, value) in dict(form.vars).iteritems():
             items = fields.find(lambda field: field.name == key)
 

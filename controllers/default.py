@@ -1,22 +1,31 @@
-# -*- coding: utf-8 -*-
-# this file is released under public domain and you can use without limitations
+"""
+This is the main application controller
+ - index
+ - search
+ - user
+ - download
 
-#########################################################################
-## This is a sample controller
-## - index is the default action of any application
-## - user is required for authentication and authorization
-## - download is for downloading files uploaded in the db (does streaming)
-## - api is an example of Hypermedia API support and access control
-#########################################################################
+"""
 
 def index():
+    """
+    Home page of Scriptify
+    This displays the 5 latest porjects (that are open)
+
+    """
     response.title = "Welcome to Scriptify"
-    projects = db((db.project.id > 0) & (db.project.status == 2)).select(orderby=~db.project.id, limitby=(0, 6)) #Need to add constraint for only open projects
+    # Get 5 latest open projects
+    projects = db((db.project.id > 0) & (db.project.status == 2)).select(orderby=~db.project.id, limitby=(0, 6))
 
     return dict(projects = projects)
 
 
 def search():
+    """
+    Search Results page
+    displays all projects that match the search term given by q in the request
+
+    """
     if request.vars.q is not None:
         search_request = request.vars.q
     else:
@@ -24,7 +33,8 @@ def search():
 
     search_term = "%" + search_request + "%"
 
-    projects = db((db.project.title).like(search_term) & (db.project.status == 2)).select() #Need to add constraint for only open projects
+    # Get open projects that match the search term
+    projects = db((db.project.title).like(search_term) & (db.project.status == 2)).select()
 
     if len(projects) is not 0:
         response.title = "Searching for '" + search_request + "'"
@@ -58,4 +68,8 @@ def user():
     return locals()
 
 def download():
+    """
+    Allows access to uploaded media (images)
+
+    """
     return response.download(request, db)

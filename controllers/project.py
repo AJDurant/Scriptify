@@ -1,9 +1,8 @@
 """
 This is the project controller
- - Create
- - Open / Close projects in profile page
- - View
-
+ - create & add_doc & add_field
+ - open / close projects
+ - view individual/open/my projects
 
 """
 
@@ -26,7 +25,9 @@ def view():
     # Get project or redirect
     project = db.project(request.args(0,cast=int)) or redirect(request.env.http_referer)
 
+    # Get project documents
     documents = db(db.doc.project == project.id).select()
+
     response.title = project.title
     response.subtitle = 'Project Documents'
     return dict(project=project, documents=documents)
@@ -37,7 +38,9 @@ def view_mine():
     Allow users to view all projects that they created
 
     """
+    # Get users projects
     projects = db(db.project.manager == auth.user_id).select()
+
     response.title = "Projects you created"
     return dict(projects=projects)
 
@@ -52,24 +55,38 @@ def create():
 
     """
     response.title = "Create a new project"
+
+    # Construct form for project creation
     form = SQLFORM(db.project,
         submit_button='Save and Add Fields',
         formstyle='bootstrap3_inline')
+
+    # Assign manager to the current user
     form.vars.manager = auth.user_id
     form.vars.status = 1 # Project status - closed.
+
     if form.process().accepted:
         session.flash = 'Project Saved'
         redirect(URL('add_field', args=form.vars.id))
+
     return dict(form=form)
 
 @auth.requires_login()
 def add_field():
+    """
+    Allow users to add fields to a project
+    There are two paths
+     - loop back to save the field and add another
+     - move forward to add documents
+
+    """
     # Get project or redirect
     project = db.project(request.args(0,cast=int)) or redirect(URL('project', 'create'))
 
     response.title = project.title
     response.subtitle = "Add Field"
 
+    # Construct form for project fields - buttons to save the field and to move onward in the form
     form = SQLFORM(
         db.field,
         buttons = [
@@ -77,23 +94,34 @@ def add_field():
             TAG.button('Add Documents', _class="btn btn-success pull-right", _type="button", _onClick = "window.location='%s'" % URL('add_doc', args=project.id))
         ],
         formstyle='bootstrap3_inline')
+
+    # Assign the project id
     form.vars.project = project.id
 
     if form.process().accepted:
         response.flash = 'Field Saved'
 
+    # Load existing fields - this is done after form processing so that any new ones are also included
     fields = db(db.field.project==project.id).select()
 
     return dict(fields=fields, form=form)
 
 @auth.requires_login()
 def add_doc():
+    """
+    Allow users to add docs to a project
+    There are two paths
+     - loop back to save the doc and add another
+     - move forward finish editing
+
+    """
     # Get project or redirect
     project = db.project(request.args(0,cast=int)) or redirect(URL('project', 'create'))
 
     response.title = project.title
     response.subtitle = "Add Document"
 
+    # Construct form for project docs - buttons to save the doc and to move onward in the form
     form = SQLFORM(
         db.doc,
         buttons = [
@@ -102,11 +130,14 @@ def add_doc():
         ],
         formstyle='bootstrap3_inline'
     )
+
+    # Assign the project id
     form.vars.project = project.id
 
     if form.process().accepted:
         response.flash = 'Document Saved'
 
+    # Load existing docs - this is done after form processing so that any new ones are also included
     docs = db(db.doc.project==project.id).select()
 
     return dict(docs=docs, form=form)
@@ -119,6 +150,7 @@ def open():
     """
     # Get project or redirect
     project = db.project(request.args(0,cast=int)) or redirect(request.env.http_referer)
+
     if (project.manager == auth.user_id):
         project.update_record(status=2)
 
@@ -132,8 +164,10 @@ def close():
     """
     # Get project or redirect
     project = db.project(request.args(0,cast=int)) or redirect(request.env.http_referer)
+
     if (project.manager == auth.user_id):
         project.update_record(status=1)
+
     redirect(URL('project', 'view_mine'))
 
 def delete():
@@ -143,6 +177,8 @@ def delete():
     """
     # Get project or redirect
     project = db.project(request.args(0,cast=int)) or redirect(request.env.http_referer)
+
     if (project.manager == auth.user_id):
         project.delete_record()
+
     redirect(URL('project', 'view_mine'))
