@@ -51,7 +51,7 @@ db.define_table(
     Field('registration_key', length=512, writable=False, readable=False, default=''),      # required
     Field('reset_password_key', length=512, writable=False, readable=False, default=''),    # required
     Field('registration_id', length=512, writable=False, readable=False, default=''),       # required
-    format='%(realname)s (%(username)s)')
+    format='%(first_name)s %(last_name)s (%(username)s)')
 
 ## User validators
 custom_auth_table = db[auth.settings.table_user_name] # get the custom_auth_table

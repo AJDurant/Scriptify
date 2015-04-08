@@ -1,0 +1,11 @@
+{{extend 'layout.html'}}
+
+<div class="row">
+    <div class="col-md-6">
+    {{=form}}
+    </div>
+    <div class="col-md-6">
+        <img src="{{=URL('default', 'download', args=doc.img)}}" class="img-responsive" alt="{{doc.name}}">
+    </div>
+</div>
+
