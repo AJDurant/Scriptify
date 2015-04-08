@@ -45,7 +45,7 @@ def contribute():
             for item in items:
                 fieldid = item.id
 
-            if fieldid != -1:
+            if fieldid != -1: # Only use valid fields
                 db.metadata.insert(contribution=contribid, field=fieldid, data_value=value, status=1)
 
         session.flash = 'Contribution Saved'
@@ -78,7 +78,9 @@ def review():
     # Construct a list of field contributions for use in a form factory
     formfields = []
     for item in fields:
+        # Get contributions for each field
         item.contributions = db((db.metadata.field == item.id) & (db.metadata.status == 1)).select()
+        # Construct fields
         if item.contributions:
             field_options = [(contrib.id, contrib.data_value) for contrib in item.contributions]
             field_options.append((0, 'Reject Contributions'))
@@ -91,6 +93,7 @@ def review():
                 )
             )
 
+    # If there are contributions - Construct the form
     if formfields:
         # Construct an SQLFORM from the generated list of fields
         form = SQLFORM.factory(*formfields,
@@ -101,22 +104,23 @@ def review():
         if form.process().accepted:
 
             for (key, value) in dict(form.vars).iteritems():
-
+                # Get the fieldid for each submitted field
                 fieldid = -1
                 items = fields.find(lambda field: field.name == key)
                 # web2py is silly this seems to be the only way to actually get a valid Row object from find()
                 for item in items:
                     fieldid = item.id
 
-                if fieldid != -1:
-                    # Reject all
+                if fieldid != -1: # Only use valid fields
+                    # Reject all contributions for the field
                     db(db.metadata.field == fieldid).update(status=3)
 
-                    # Accept selected
+                    # Accept selected contribution
                     if value != 0:
                         db(db.metadata.id == value).update(status=2)
 
             session.flash = 'Review Saved'
+            redirect(URL('project', 'view', args=doc.project.id))
         elif form.errors:
             response.flash = 'Review has errors'
     else:
