@@ -11,3 +11,6 @@ uploads/
 *.log
 *.pyc
 *.swp
+
+# Sublime Text workspace files
+*.sublime-workspace
