@@ -78,22 +78,49 @@ def review():
     # Construct a list of field contributions for use in a form factory
     formfields = []
     for item in fields:
-        item.contributions = db(db.metadata.field == item.id).select()
-        field_options = [(contrib.id, contrib.data_value) for contrib in item.contributions]
-        formfields.append(
-            Field(
-                item.name,
-                type='list:string',
-                requires=IS_IN_SET(field_options, zero='Reject Contributions'),
-                widget=BootstrapRadio.widget
+        item.contributions = db((db.metadata.field == item.id) & (db.metadata.status == 1)).select()
+        if item.contributions:
+            field_options = [(contrib.id, contrib.data_value) for contrib in item.contributions]
+            field_options.append((0, 'Reject Contributions'))
+            formfields.append(
+                Field(
+                    item.name,
+                    type='list:string',
+                    requires=IS_IN_SET(field_options),
+                    widget=BootstrapRadio.widget
+                )
             )
+
+    if formfields:
+        # Construct an SQLFORM from the generated list of fields
+        form = SQLFORM.factory(*formfields,
+            submit_button='Submit Review',
+            formstyle='bootstrap3_inline'
         )
 
-    # Construct an SQLFORM from the generated list of fields
-    form = SQLFORM.factory(*formfields,
-        submit_button='Submit Review',
-        formstyle='bootstrap3_inline'
-    )
+        if form.process().accepted:
+
+            for (key, value) in dict(form.vars).iteritems():
+
+                fieldid = -1
+                items = fields.find(lambda field: field.name == key)
+                # web2py is silly this seems to be the only way to actually get a valid Row object from find()
+                for item in items:
+                    fieldid = item.id
+
+                if fieldid != -1:
+                    # Reject all
+                    db(db.metadata.field == fieldid).update(status=3)
+
+                    # Accept selected
+                    if value != 0:
+                        db(db.metadata.id == value).update(status=2)
+
+            session.flash = 'Review Saved'
+        elif form.errors:
+            response.flash = 'Review has errors'
+    else:
+        form = "No pending contributions"
 
     response.title = 'Review'
     response.subtitle = doc.name + ' (' + doc.project.title + ')'
