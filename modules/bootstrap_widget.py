@@ -2,6 +2,9 @@ from gluon.sqlhtml import OptionsWidget, add_class
 from gluon.html import LABEL, INPUT, DIV
 
 class BootstrapRadio(OptionsWidget):
+    """
+    This class replaces the standard radio button widget to make it compatible with Bootstrap
+    """
 
     @classmethod
     def widget(cls, field, value, **attributes):
