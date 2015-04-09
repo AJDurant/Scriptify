@@ -27,7 +27,7 @@ response.google_analytics_id = None
 
 response.menu = [
     (T('Create a project'), False, URL('project', 'create'), []),
-    (T('Browse Projects'), False, URL('project', 'view_open'), []),
+    (T('Browse Projects'), False, URL('project', 'index'), []),
     (T('My Projects'), False, URL('project', 'view_mine'), [])
 ]
 

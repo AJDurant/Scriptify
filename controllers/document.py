@@ -8,6 +8,32 @@ This is the document controller
 from gluon.custom_import import track_changes; track_changes(True) #enable tracking changes of modules
 from bootstrap_widget import BootstrapRadio
 
+def index():
+    redirect(request.env.http_referer)
+
+def view():
+    # Get document or redirect
+    try:
+        doc = db.doc(request.args(0,cast=int))
+        if doc is None:
+            raise LookupError
+    except:
+        redirect(request.env.http_referer)
+
+    # Get fields for the document's project
+    fields = db(db.field.project==doc.project.id).select()
+
+    contributions = db(db.contribution.doc == doc.id).select('id')
+
+    for item in fields:
+        # Get accepted metadata for each field
+        item.metadata = db((db.metadata.contribution in contributions) & (db.metadata.field == item.id) & (db.metadata.status == 2)).select().first()
+
+    response.title = 'View'
+    response.subtitle = doc.name + ' (' + doc.project.title + ')'
+
+    return locals()
+
 @auth.requires_login()
 def contribute():
     """
@@ -16,7 +42,12 @@ def contribute():
 
     """
     # Get document or redirect
-    doc = db.doc(request.args(0,cast=int)) or redirect(request.env.http_referer)
+    try:
+        doc = db.doc(request.args(0,cast=int))
+        if doc is None:
+            raise LookupError
+    except:
+        redirect(request.env.http_referer)
 
     # Get fields for the document's project
     fields = db(db.field.project==doc.project.id).select()
@@ -66,7 +97,12 @@ def review():
 
     """
     # Get document or redirect
-    doc = db.doc(request.args(0,cast=int)) or redirect(URL('project', 'view_mine'))
+    try:
+        doc = db.doc(request.args(0,cast=int))
+        if doc is None:
+            raise LookupError
+    except:
+        redirect(URL('project', 'view_mine'))
 
     # Only allow managers to review documents
     if (doc.project.manager != auth.user_id):
@@ -74,15 +110,17 @@ def review():
 
     # Get fields for the document's project
     fields = db(db.field.project==doc.project.id).select()
+    # Get ids of contributions for the doc
+    contributions = db(db.contribution.doc == doc.id).select('id')
 
-    # Construct a list of field contributions for use in a form factory
+    # Construct a list of field metadata for use in a form factory
     formfields = []
     for item in fields:
-        # Get contributions for each field
-        item.contributions = db((db.metadata.field == item.id) & (db.metadata.status == 1)).select()
+        # Get metadata for each field
+        item.metadata = db((db.metadata.contribution in contributions) & (db.metadata.field == item.id) & (db.metadata.status == 1)).select()
         # Construct fields
-        if item.contributions:
-            field_options = [(contrib.id, contrib.data_value) for contrib in item.contributions]
+        if item.metadata:
+            field_options = [(contrib.id, contrib.data_value) for contrib in item.metadata]
             field_options.append((0, 'Reject Contributions'))
             formfields.append(
                 Field(
@@ -93,7 +131,7 @@ def review():
                 )
             )
 
-    # If there are contributions - Construct the form
+    # If there are metadata - Construct the form
     if formfields:
         # Construct an SQLFORM from the generated list of fields
         form = SQLFORM.factory(*formfields,
@@ -112,10 +150,10 @@ def review():
                     fieldid = item.id
 
                 if fieldid != -1: # Only use valid fields
-                    # Reject all contributions for the field
-                    db(db.metadata.field == fieldid).update(status=3)
+                    # Reject all metadata for the field
+                    db((db.metadata.contribution in contributions) & (db.metadata.field == fieldid)).update(status=3)
 
-                    # Accept selected contribution
+                    # Accept selected metadata
                     if value != 0:
                         db(db.metadata.id == value).update(status=2)
 

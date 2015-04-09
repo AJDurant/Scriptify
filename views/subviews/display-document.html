@@ -3,7 +3,10 @@
       <div class="caption center">
         <h3>{{=doc.name}}</h3>
         <img src="{{=URL('default', 'download', args=doc.img)}}" class="img-thumbnail margin" alt="{{doc.name}}">
-        <p><a href="{{=URL('document', 'contribute', args=doc.id)}}" class="btn btn-default" role="button">Contribute</a></p>
+        <p>
+            <a href="{{=URL('document', 'view', args=doc.id)}}" class="btn btn-default" role="button">View</a>
+            <a href="{{=URL('document', 'contribute', args=doc.id)}}" class="btn btn-default" role="button">Contribute</a>
+        </p>
       </div>
     </div>
 </div>

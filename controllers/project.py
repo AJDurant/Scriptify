@@ -6,7 +6,7 @@ This is the project controller
 
 """
 
-def view_open():
+def index():
     """
     Display all projects which are open for croudsourcing
 
@@ -23,7 +23,12 @@ def view():
 
     """
     # Get project or redirect
-    project = db.project(request.args(0,cast=int)) or redirect(request.env.http_referer)
+    try:
+        project = db.project(request.args(0,cast=int))
+        if project is None:
+            raise LookupError
+    except:
+        redirect(URL('project', 'index'))
 
     # Get project documents
     documents = db(db.doc.project == project.id).select()
@@ -81,7 +86,12 @@ def add_field():
 
     """
     # Get project or redirect
-    project = db.project(request.args(0,cast=int)) or redirect(URL('project', 'create'))
+    try:
+        project = db.project(request.args(0,cast=int))
+        if project is None:
+            raise LookupError
+    except:
+        redirect(URL('project', 'create'))
 
     response.title = project.title
     response.subtitle = "Add Field"
@@ -116,7 +126,12 @@ def add_doc():
 
     """
     # Get project or redirect
-    project = db.project(request.args(0,cast=int)) or redirect(URL('project', 'create'))
+    try:
+        project = db.project(request.args(0,cast=int))
+        if project is None:
+            raise LookupError
+    except:
+        redirect(URL('project', 'create'))
 
     response.title = project.title
     response.subtitle = "Add Document"
@@ -149,7 +164,12 @@ def open():
 
     """
     # Get project or redirect
-    project = db.project(request.args(0,cast=int)) or redirect(request.env.http_referer)
+    try:
+        project = db.project(request.args(0,cast=int))
+        if project is None:
+            raise LookupError
+    except:
+        redirect(request.env.http_referer)
 
     if (project.manager == auth.user_id):
         project.update_record(status=2)
@@ -163,7 +183,12 @@ def close():
 
     """
     # Get project or redirect
-    project = db.project(request.args(0,cast=int)) or redirect(request.env.http_referer)
+    try:
+        project = db.project(request.args(0,cast=int))
+        if project is None:
+            raise LookupError
+    except:
+        redirect(request.env.http_referer)
 
     if (project.manager == auth.user_id):
         project.update_record(status=1)
@@ -176,7 +201,12 @@ def delete():
 
     """
     # Get project or redirect
-    project = db.project(request.args(0,cast=int)) or redirect(request.env.http_referer)
+    try:
+        project = db.project(request.args(0,cast=int))
+        if project is None:
+            raise LookupError
+    except:
+        redirect(request.env.http_referer)
 
     if (project.manager == auth.user_id):
         project.delete_record()
