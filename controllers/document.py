@@ -8,9 +8,6 @@ This is the document controller
 from gluon.custom_import import track_changes; track_changes(True) #enable tracking changes of modules
 from bootstrap_widget import BootstrapRadio
 
-def index():
-    redirect(request.env.http_referer)
-
 def view():
     # Get document or redirect
     try:
