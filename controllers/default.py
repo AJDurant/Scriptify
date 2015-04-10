@@ -14,6 +14,7 @@ def index():
 
     """
     response.title = "Welcome to Scriptify"
+    response.subtitle = "Latest Projects"
     # Get 5 latest open projects
     projects = db((db.project.id > 0) & (db.project.status == 2)).select(orderby=~db.project.id, limitby=(0, 6))
 
@@ -38,7 +39,7 @@ def search():
 
     if len(projects) is not 0:
         response.title = "Searching for '" + search_request + "'"
-        response.subtitle = "Displaying " + str(len(projects)) + " result(s)"
+        response.subtitle = "Displaying " + str(len(projects)) + (" result" if len(projects) == 1 else " results")
     else:
         response.title = "No results for '" + search_request + "'"
 
@@ -62,8 +63,7 @@ def user():
 
     form = auth()
 
-    if request.args(0) == 'profile':
-        pass
+    response.title = "Scriptify"
 
     return locals()
 

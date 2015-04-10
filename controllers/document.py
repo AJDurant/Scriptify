@@ -8,6 +8,34 @@ This is the document controller
 from gluon.custom_import import track_changes; track_changes(True) #enable tracking changes of modules
 from bootstrap_widget import BootstrapRadio
 
+def view():
+    # Get document or redirect
+    try:
+        doc = db.doc(request.args(0,cast=int))
+        if doc is None:
+            raise LookupError
+    except:
+        redirect(request.env.http_referer)
+
+    # Get fields for the document's project
+    fields = db(db.field.project==doc.project.id).select()
+    # Get ids of contributions for the doc
+    contributions = db(db.contribution.doc == doc.id).select()
+
+    for item in fields:
+        # Get accepted metadata for each field
+        item.metadata = db((db.metadata.contribution.belongs(contributions)) & (db.metadata.field == item.id) & (db.metadata.status == 2)).select().first()
+
+    response.title = doc.name + ' (' + doc.project.title + ')'
+    response.subtitle = 'View'
+
+    session.breadcrumb = []
+    session.breadcrumb.append(LI(A(pretty('project'), _href=URL(r=request, c='project', f='index'))))
+    session.breadcrumb.append(LI(A(doc.project.title, _href=URL(r=request, c='project', f='view', args=doc.project))))
+    session.breadcrumb.append(LI(A(doc.name, _href=URL(r=request, c=request.controller, f=request.function, args=request.args))))
+
+    return locals()
+
 @auth.requires_login()
 def contribute():
     """
@@ -16,14 +44,25 @@ def contribute():
 
     """
     # Get document or redirect
-    doc = db.doc(request.args(0,cast=int)) or redirect(request.env.http_referer)
+    try:
+        doc = db.doc(request.args(0,cast=int))
+        if doc is None:
+            raise LookupError
+    except:
+        redirect(request.env.http_referer)
 
     # Get fields for the document's project
     fields = db(db.field.project==doc.project.id).select()
+    # Get ids of contributions for the doc
+    contributions = db(db.contribution.doc == doc.id).select()
 
     # Construct a list of fields for use in a form factory, with the defined field type
     formfields = []
     for item in fields:
+        # Check if field has accepted data
+        accept = db((db.metadata.contribution.belongs(contributions)) & (db.metadata.field == item.id) & (db.metadata.status == 2)).select()
+        if accept:
+            continue
         formfields.append(Field(item.name, type=item.status.fname))
 
     # Construct an SQLFORM from the generated list of fields
@@ -53,8 +92,14 @@ def contribute():
     elif form.errors:
         response.flash = 'Contribution has errors'
 
-    response.title = 'Contribute'
-    response.subtitle = doc.name + ' (' + doc.project.title + ')'
+    response.title = doc.name + ' (' + doc.project.title + ')'
+    response.subtitle = 'Contribute'
+
+    session.breadcrumb = []
+    session.breadcrumb.append(LI(A(pretty('project'), _href=URL(r=request, c='project', f='index'))))
+    session.breadcrumb.append(LI(A(doc.project.title, _href=URL(r=request, c='project', f='view', args=doc.project))))
+    session.breadcrumb.append(LI(A(doc.name, _href=URL(r=request, c='document', f='view', args=doc.id))))
+    session.breadcrumb.append(LI(A(T(pretty(request.function)), _href=URL(r=request, c=request.controller, f=request.function, args=request.args))))
 
     response.view = 'document/doc.html'
     return locals()
@@ -66,7 +111,12 @@ def review():
 
     """
     # Get document or redirect
-    doc = db.doc(request.args(0,cast=int)) or redirect(URL('project', 'view_mine'))
+    try:
+        doc = db.doc(request.args(0,cast=int))
+        if doc is None:
+            raise LookupError
+    except:
+        redirect(URL('project', 'view_mine'))
 
     # Only allow managers to review documents
     if (doc.project.manager != auth.user_id):
@@ -74,15 +124,22 @@ def review():
 
     # Get fields for the document's project
     fields = db(db.field.project==doc.project.id).select()
+    # Get ids of contributions for the doc
+    contributions = db(db.contribution.doc == doc.id).select()
 
-    # Construct a list of field contributions for use in a form factory
+    # Construct a list of field metadata for use in a form factory
     formfields = []
     for item in fields:
-        # Get contributions for each field
-        item.contributions = db((db.metadata.field == item.id) & (db.metadata.status == 1)).select()
+        # Check if field has accepted data
+        accept = db((db.metadata.contribution.belongs(contributions)) & (db.metadata.field == item.id) & (db.metadata.status == 2)).select()
+        if accept:
+            continue
+
+        # Get metadata for each field
+        item.metadata = db((db.metadata.contribution.belongs(contributions)) & (db.metadata.field == item.id) & (db.metadata.status == 1)).select()
         # Construct fields
-        if item.contributions:
-            field_options = [(contrib.id, contrib.data_value) for contrib in item.contributions]
+        if item.metadata:
+            field_options = [(contrib.id, contrib.data_value) for contrib in item.metadata]
             field_options.append((0, 'Reject Contributions'))
             formfields.append(
                 Field(
@@ -93,7 +150,7 @@ def review():
                 )
             )
 
-    # If there are contributions - Construct the form
+    # If there are metadata - Construct the form
     if formfields:
         # Construct an SQLFORM from the generated list of fields
         form = SQLFORM.factory(*formfields,
@@ -112,10 +169,10 @@ def review():
                     fieldid = item.id
 
                 if fieldid != -1: # Only use valid fields
-                    # Reject all contributions for the field
-                    db(db.metadata.field == fieldid).update(status=3)
+                    # Reject all metadata for the field
+                    db((db.metadata.contribution.belongs(contributions)) & (db.metadata.field == fieldid)).update(status=3)
 
-                    # Accept selected contribution
+                    # Accept selected metadata
                     if value != 0:
                         db(db.metadata.id == value).update(status=2)
 
@@ -126,8 +183,14 @@ def review():
     else:
         form = "No pending contributions"
 
-    response.title = 'Review'
-    response.subtitle = doc.name + ' (' + doc.project.title + ')'
+    response.title = doc.name + ' (' + doc.project.title + ')'
+    response.subtitle = 'Review'
+
+    session.breadcrumb = []
+    session.breadcrumb.append(LI(A(pretty('project'), _href=URL(r=request, c='project', f='index'))))
+    session.breadcrumb.append(LI(A(doc.project.title, _href=URL(r=request, c='project', f='view', args=doc.project))))
+    session.breadcrumb.append(LI(A(doc.name, _href=URL(r=request, c='document', f='view', args=doc.id))))
+    session.breadcrumb.append(LI(A(T(pretty(request.function)), _href=URL(r=request, c=request.controller, f=request.function, args=request.args))))
 
     response.view = 'document/doc.html'
     return locals()

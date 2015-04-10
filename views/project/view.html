@@ -1,5 +1,5 @@
 {{extend 'layout.html'}}
 
-{{ for doc in documents: }}
+{{ for doc in project.documents: }}
     {{include "subviews/display-document.html"}}
 {{ pass }}

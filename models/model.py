@@ -21,6 +21,11 @@ db.project.title.requires = IS_NOT_EMPTY()
 db.project.manager.requires = IS_IN_DB(db, db.auth_user.id, '%(username)s')
 db.project.status.requires = IS_IN_DB(db, db.project_status.id, '%(name)s')
 
+# Get the documents for this project
+db.project.documents = Field.Virtual(
+    'documents',
+    lambda row: db(db.doc.project==row.project.id).select())
+
 # Lookup table for field types
 db.define_table(
     'field_type',
@@ -60,6 +65,22 @@ db.doc.project.requires = IS_IN_DB(db, db.project.id, '%(title)s')
 db.doc.name.requires = IS_NOT_EMPTY()
 db.doc.img.requires = IS_IMAGE(extensions=('png', 'jpg', 'jpeg', 'gif'))
 
+# Doc complete if all fields have accepted metadata
+db.doc.complete = Field.Virtual(
+    'complete',
+    lambda row: (db.executesql('SELECT count(metadata.id) FROM metadata, contribution WHERE metadata.contribution = contribution.id AND metadata.status = 2 AND contribution.doc = %(doc)s;' % {'doc': row.doc.id})[0][0] == db.executesql('SELECT count(DISTINCT field.id) FROM field, metadata, contribution WHERE field.id = metadata.field AND metadata.contribution = contribution.id AND contribution.doc = %(doc)s;' % {'doc': row.doc.id})[0][0])
+)
+
+# Get the active status = not complete AND (less than 3 pending OR field with only rejected data)
+db.doc.active = Field.Virtual(
+    'active',
+    lambda row: (
+        (not row.doc.complete)
+        & (db.executesql('SELECT count(DISTINCT contribution.id) FROM metadata, contribution WHERE metadata.contribution = contribution.id AND metadata.status = 1 AND contribution.doc = %(doc)s;' % {'doc': row.doc.id})[0][0] < 3)
+        | (db.executesql('SELECT count(DISTINCT field.id) FROM field, metadata, contribution WHERE field.id = metadata.field AND metadata.contribution = contribution.id AND contribution.doc = %(doc)s AND field.id NOT IN (SELECT field.id FROM field, metadata, contribution WHERE field.id = metadata.field AND metadata.contribution = contribution.id AND contribution.doc = %(doc)s AND (metadata.status = 2 OR metadata.status = 1) GROUP BY field.id);' % {'doc': row.doc.id})[0][0] > 0)
+    )
+)
+
 # Table for User Contributions
 db.define_table(
     'contribution',
@@ -75,7 +96,7 @@ db.define_table(
     format='%(name)s'
 )
 
-# Table for supplied meta-data
+# Table for supplied metadata
 db.define_table(
     'metadata',
     Field('contribution', 'reference contribution', writable=False, readable=False, required=True),
@@ -84,12 +105,13 @@ db.define_table(
     Field('status', 'reference contribution_status', writable=False, readable=False, required=True),
     format='%(field)s - %(contribution)s'
 )
+# Metadata constraints
 db.metadata.contribution.requires = IS_IN_DB(db, db.contribution.id, '%(doc)s')
 db.metadata.field.requires = IS_IN_DB(db, db.field.id, '%(name)s')
 db.metadata.data_value.requires = IS_NOT_EMPTY()
 db.metadata.status.requires = IS_IN_DB(db, db.contribution_status.id, '%(name)s')
 
-
+# Lookup values (added on first run)
 if db(db.project_status.id > 0).count() == 0:
     db.project_status.insert(name='Closed')
     db.project_status.insert(name='Open')

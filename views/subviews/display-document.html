@@ -1,9 +1,16 @@
 <div class="col-md-4">
     <div class="thumbnail">
       <div class="caption center">
-        <h3>{{=doc.name}}</h3>
+        <h2>{{=doc.name}}</h2>
         <img src="{{=URL('default', 'download', args=doc.img)}}" class="img-thumbnail margin" alt="{{doc.name}}">
-        <p><a href="{{=URL('document', 'contribute', args=doc.id)}}" class="btn btn-default" role="button">Contribute</a></p>
+        <p>
+            <a href="{{=URL('document', 'view', args=doc.id)}}" class="btn btn-default" role="button">View</a>
+            {{if doc.active:}}
+                <a href="{{=URL('document', 'contribute', args=doc.id)}}" class="btn btn-default" role="button">Contribute</a>
+            {{elif (not doc.complete) & (doc.project.manager == auth.user_id):}}
+                <a href="{{=URL('document', 'review', args=doc.id)}}" class="btn btn-default" role="button">Review</a>
+            {{pass}}
+        </p>
       </div>
     </div>
 </div>
