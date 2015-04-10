@@ -14,6 +14,7 @@ def index():
     projects = db(db.project.status == 2).select() # Select projects that are open for croudsourcing
 
     response.title = "Projects open for contributions"
+
     return dict(projects=projects)
 
 def view():
@@ -33,9 +34,11 @@ def view():
 
     response.title = project.title
     response.subtitle = 'Project Documents'
+
     session.breadcrumb = []
     session.breadcrumb.append(LI(A(pretty(request.controller), _href=URL(r=request, c=request.controller, f='index'))))
     session.breadcrumb.append(LI(A(project.title, _href=URL(r=request, c=request.controller, f=request.function, args=request.args))))
+
     return dict(project=project)
 
 @auth.requires_login()
@@ -48,6 +51,7 @@ def view_mine():
     projects = db(db.project.manager == auth.user_id).select()
 
     response.title = "Projects you created"
+
     return dict(projects=projects)
 
 @auth.requires_login()

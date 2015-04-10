@@ -65,10 +65,17 @@ db.doc.project.requires = IS_IN_DB(db, db.project.id, '%(title)s')
 db.doc.name.requires = IS_NOT_EMPTY()
 db.doc.img.requires = IS_IMAGE(extensions=('png', 'jpg', 'jpeg', 'gif'))
 
+# Doc complete if all fields have accepted metadata
+db.doc.complete = Field.Virtual(
+    'complete',
+    lambda row: (db.executesql('SELECT count(metadata.id) FROM metadata, contribution WHERE metadata.contribution = contribution.id AND metadata.status = 2 AND contribution.doc = %(doc)s;' % {'doc': row.doc.id})[0][0] == db.executesql('SELECT count(DISTINCT field.id) FROM field, metadata, contribution WHERE field.id = metadata.field AND metadata.contribution = contribution.id AND contribution.doc = %(doc)s;' % {'doc': row.doc.id})[0][0])
+)
+
+# Get the active status = not complete AND (less than 3 pending OR field with only rejected data)
 db.doc.active = Field.Virtual(
     'active',
     lambda row: (
-        (db.executesql('SELECT count(metadata.id) FROM metadata, contribution WHERE metadata.contribution = contribution.id AND metadata.status = 2 AND contribution.doc = %(doc)s;' % {'doc': row.doc.id})[0][0] < db.executesql('SELECT count(DISTINCT field.id) FROM field, metadata, contribution WHERE field.id = metadata.field AND metadata.contribution = contribution.id AND contribution.doc = %(doc)s;' % {'doc': row.doc.id})[0][0])
+        (not row.doc.complete)
         & (db.executesql('SELECT count(DISTINCT contribution.id) FROM metadata, contribution WHERE metadata.contribution = contribution.id AND metadata.status = 1 AND contribution.doc = %(doc)s;' % {'doc': row.doc.id})[0][0] < 3)
         | (db.executesql('SELECT count(DISTINCT field.id) FROM field, metadata, contribution WHERE field.id = metadata.field AND metadata.contribution = contribution.id AND contribution.doc = %(doc)s AND field.id NOT IN (SELECT field.id FROM field, metadata, contribution WHERE field.id = metadata.field AND metadata.contribution = contribution.id AND contribution.doc = %(doc)s AND (metadata.status = 2 OR metadata.status = 1) GROUP BY field.id);' % {'doc': row.doc.id})[0][0] > 0)
     )

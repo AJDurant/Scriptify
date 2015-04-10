@@ -19,7 +19,7 @@ def view():
 
     # Get fields for the document's project
     fields = db(db.field.project==doc.project.id).select()
-
+    # Get ids of contributions for the doc
     contributions = db(db.contribution.doc == doc.id).select()
 
     for item in fields:
@@ -28,10 +28,12 @@ def view():
 
     response.title = doc.name + ' (' + doc.project.title + ')'
     response.subtitle = 'View'
+
     session.breadcrumb = []
     session.breadcrumb.append(LI(A(pretty('project'), _href=URL(r=request, c='project', f='index'))))
     session.breadcrumb.append(LI(A(doc.project.title, _href=URL(r=request, c='project', f='view', args=doc.project))))
     session.breadcrumb.append(LI(A(doc.name, _href=URL(r=request, c=request.controller, f=request.function, args=request.args))))
+
     return locals()
 
 @auth.requires_login()
@@ -78,7 +80,7 @@ def contribute():
             items = fields.find(lambda field: field.name == key)
 
             fieldid = -1
-            # web2py is silly this seems to be the only way to actually get a valid doc object from find()
+            # web2py is silly this seems to be the only way to actually get a valid Row object from find()
             for item in items:
                 fieldid = item.id
 
@@ -92,11 +94,13 @@ def contribute():
 
     response.title = doc.name + ' (' + doc.project.title + ')'
     response.subtitle = 'Contribute'
+
     session.breadcrumb = []
     session.breadcrumb.append(LI(A(pretty('project'), _href=URL(r=request, c='project', f='index'))))
     session.breadcrumb.append(LI(A(doc.project.title, _href=URL(r=request, c='project', f='view', args=doc.project))))
     session.breadcrumb.append(LI(A(doc.name, _href=URL(r=request, c='document', f='view', args=doc.id))))
     session.breadcrumb.append(LI(A(T(pretty(request.function)), _href=URL(r=request, c=request.controller, f=request.function, args=request.args))))
+
     response.view = 'document/doc.html'
     return locals()
 
@@ -181,10 +185,12 @@ def review():
 
     response.title = doc.name + ' (' + doc.project.title + ')'
     response.subtitle = 'Review'
+
     session.breadcrumb = []
     session.breadcrumb.append(LI(A(pretty('project'), _href=URL(r=request, c='project', f='index'))))
     session.breadcrumb.append(LI(A(doc.project.title, _href=URL(r=request, c='project', f='view', args=doc.project))))
     session.breadcrumb.append(LI(A(doc.name, _href=URL(r=request, c='document', f='view', args=doc.id))))
     session.breadcrumb.append(LI(A(T(pretty(request.function)), _href=URL(r=request, c=request.controller, f=request.function, args=request.args))))
+
     response.view = 'document/doc.html'
     return locals()

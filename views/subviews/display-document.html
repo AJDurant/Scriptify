@@ -7,7 +7,7 @@
             <a href="{{=URL('document', 'view', args=doc.id)}}" class="btn btn-default" role="button">View</a>
             {{if doc.active:}}
                 <a href="{{=URL('document', 'contribute', args=doc.id)}}" class="btn btn-default" role="button">Contribute</a>
-            {{elif doc.project.manager == auth.user_id:}}
+            {{elif (not doc.complete) & (doc.project.manager == auth.user_id):}}
                 <a href="{{=URL('document', 'review', args=doc.id)}}" class="btn btn-default" role="button">Review</a>
             {{pass}}
         </p>
