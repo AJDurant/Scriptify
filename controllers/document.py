@@ -38,7 +38,10 @@ def view():
 
     response.title = 'View'
     response.subtitle = doc.name + ' (' + doc.project.title + ')'
-
+    session.breadcrumb = []
+    session.breadcrumb.append(LI(A(pretty('project'), _href=URL(r=request, c='project', f='index'))))
+    session.breadcrumb.append(LI(A(doc.project.title, _href=URL(r=request, c='project', f='view', args=doc.project))))
+    session.breadcrumb.append(LI(A(doc.name, _href=URL(r=request, c=request.controller, f=request.function, args=request.args))))
     return locals()
 
 @auth.requires_login()
@@ -106,7 +109,11 @@ def contribute():
 
     response.title = 'Contribute'
     response.subtitle = doc.name + ' (' + doc.project.title + ')'
-
+    session.breadcrumb = []
+    session.breadcrumb.append(LI(A(pretty('project'), _href=URL(r=request, c='project', f='index'))))
+    session.breadcrumb.append(LI(A(doc.project.title, _href=URL(r=request, c='project', f='view', args=doc.project))))
+    session.breadcrumb.append(LI(A(doc.name, _href=URL(r=request, c='document', f='view', args=doc.id))))
+    session.breadcrumb.append(LI(A(T(pretty(request.function)), _href=URL(r=request, c=request.controller, f=request.function, args=request.args))))
     response.view = 'document/doc.html'
     return locals()
 
@@ -198,6 +205,10 @@ def review():
 
     response.title = 'Review'
     response.subtitle = doc.name + ' (' + doc.project.title + ')'
-
+    session.breadcrumb = []
+    session.breadcrumb.append(LI(A(pretty('project'), _href=URL(r=request, c='project', f='index'))))
+    session.breadcrumb.append(LI(A(doc.project.title, _href=URL(r=request, c='project', f='view', args=doc.project))))
+    session.breadcrumb.append(LI(A(doc.name, _href=URL(r=request, c='document', f='view', args=doc.id))))
+    session.breadcrumb.append(LI(A(T(pretty(request.function)), _href=URL(r=request, c=request.controller, f=request.function, args=request.args))))
     response.view = 'document/doc.html'
     return locals()

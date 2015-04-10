@@ -43,6 +43,9 @@ def view():
 
     response.title = project.title
     response.subtitle = 'Project Documents'
+    session.breadcrumb = []
+    session.breadcrumb.append(LI(A(pretty(request.controller), _href=URL(r=request, c=request.controller, f='index'))))
+    session.breadcrumb.append(LI(A(project.title, _href=URL(r=request, c=request.controller, f=request.function, args=request.args))))
     return dict(project=project, documents=documents)
 
 @auth.requires_login()
@@ -122,6 +125,11 @@ def add_field():
     # Load existing fields - this is done after form processing so that any new ones are also included
     fields = db(db.field.project==project.id).select()
 
+    session.breadcrumb = []
+    session.breadcrumb.append(LI(A(pretty(request.controller), _href=URL(r=request, c=request.controller, f='index'))))
+    session.breadcrumb.append(LI(A(project.title, _href=URL(r=request, c=request.controller, f='view', args=request.args))))
+    session.breadcrumb.append(LI(A(pretty(request.function), _href=URL(r=request, c=request.controller, f=request.function, args=request.args))))
+
     return dict(fields=fields, form=form)
 
 @auth.requires_login()
@@ -162,6 +170,11 @@ def add_doc():
 
     # Load existing docs - this is done after form processing so that any new ones are also included
     docs = db(db.doc.project==project.id).select()
+
+    session.breadcrumb = []
+    session.breadcrumb.append(LI(A(pretty(request.controller), _href=URL(r=request, c=request.controller, f='index'))))
+    session.breadcrumb.append(LI(A(project.title, _href=URL(r=request, c=request.controller, f='view', args=request.args))))
+    session.breadcrumb.append(LI(A(pretty(request.function), _href=URL(r=request, c=request.controller, f=request.function, args=request.args))))
 
     return dict(docs=docs, form=form)
 
