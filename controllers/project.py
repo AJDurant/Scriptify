@@ -33,6 +33,14 @@ def view():
     # Get project documents
     documents = db(db.doc.project == project.id).select()
 
+    for doc in documents:
+        # Making this a virtual field doesn't seem to work, so it is duplicated =(
+        doc.active = (
+            (db.executesql('SELECT count(metadata.id) FROM metadata, contribution WHERE metadata.contribution = contribution.id AND metadata.status = 2 AND contribution.doc = %(doc)s;' % {'doc': doc.id})[0][0] < db.executesql('SELECT count(DISTINCT field.id) FROM field, metadata, contribution WHERE field.id = metadata.field AND metadata.contribution = contribution.id AND contribution.doc = %(doc)s;' % {'doc': doc.id})[0][0])
+            & (db.executesql('SELECT count(DISTINCT contribution.id) FROM metadata, contribution WHERE metadata.contribution = contribution.id AND metadata.status = 1 AND contribution.doc = %(doc)s;' % {'doc': doc.id})[0][0] < 3)
+            | (db.executesql('SELECT count(DISTINCT field.id) FROM field, metadata, contribution WHERE field.id = metadata.field AND metadata.contribution = contribution.id AND contribution.doc = %(doc)s AND field.id NOT IN (SELECT field.id FROM field, metadata, contribution WHERE field.id = metadata.field AND metadata.contribution = contribution.id AND contribution.doc = %(doc)s AND (metadata.status = 2 OR metadata.status = 1) GROUP BY field.id);' % {'doc': doc.id})[0][0] > 0)
+        )
+
     response.title = project.title
     response.subtitle = 'Project Documents'
     return dict(project=project, documents=documents)

@@ -20,14 +20,21 @@ def view():
     except:
         redirect(request.env.http_referer)
 
+    # Making this a virtual field doesn't seem to work, so it is duplicated =(
+    doc.active = (
+        (db.executesql('SELECT count(metadata.id) FROM metadata, contribution WHERE metadata.contribution = contribution.id AND metadata.status = 2 AND contribution.doc = %(doc)s;' % {'doc': doc.id})[0][0] < db.executesql('SELECT count(DISTINCT field.id) FROM field, metadata, contribution WHERE field.id = metadata.field AND metadata.contribution = contribution.id AND contribution.doc = %(doc)s;' % {'doc': doc.id})[0][0])
+        & (db.executesql('SELECT count(DISTINCT contribution.id) FROM metadata, contribution WHERE metadata.contribution = contribution.id AND metadata.status = 1 AND contribution.doc = %(doc)s;' % {'doc': doc.id})[0][0] < 3)
+        | (db.executesql('SELECT count(DISTINCT field.id) FROM field, metadata, contribution WHERE field.id = metadata.field AND metadata.contribution = contribution.id AND contribution.doc = %(doc)s AND field.id NOT IN (SELECT field.id FROM field, metadata, contribution WHERE field.id = metadata.field AND metadata.contribution = contribution.id AND contribution.doc = %(doc)s AND (metadata.status = 2 OR metadata.status = 1) GROUP BY field.id);' % {'doc': doc.id})[0][0] > 0)
+    )
+
     # Get fields for the document's project
     fields = db(db.field.project==doc.project.id).select()
 
-    contributions = db(db.contribution.doc == doc.id).select('id')
+    contributions = db(db.contribution.doc == doc.id).select()
 
     for item in fields:
         # Get accepted metadata for each field
-        item.metadata = db((db.metadata.contribution in contributions) & (db.metadata.field == item.id) & (db.metadata.status == 2)).select().first()
+        item.metadata = db((db.metadata.contribution.belongs(contributions)) & (db.metadata.field == item.id) & (db.metadata.status == 2)).select().first()
 
     response.title = 'View'
     response.subtitle = doc.name + ' (' + doc.project.title + ')'
@@ -49,12 +56,25 @@ def contribute():
     except:
         redirect(request.env.http_referer)
 
+    # Making this a virtual field doesn't seem to work, so it is duplicated =(
+    doc.active = (
+        (db.executesql('SELECT count(metadata.id) FROM metadata, contribution WHERE metadata.contribution = contribution.id AND metadata.status = 2 AND contribution.doc = %(doc)s;' % {'doc': doc.id})[0][0] < db.executesql('SELECT count(DISTINCT field.id) FROM field, metadata, contribution WHERE field.id = metadata.field AND metadata.contribution = contribution.id AND contribution.doc = %(doc)s;' % {'doc': doc.id})[0][0])
+        & (db.executesql('SELECT count(DISTINCT contribution.id) FROM metadata, contribution WHERE metadata.contribution = contribution.id AND metadata.status = 1 AND contribution.doc = %(doc)s;' % {'doc': doc.id})[0][0] < 3)
+        | (db.executesql('SELECT count(DISTINCT field.id) FROM field, metadata, contribution WHERE field.id = metadata.field AND metadata.contribution = contribution.id AND contribution.doc = %(doc)s AND field.id NOT IN (SELECT field.id FROM field, metadata, contribution WHERE field.id = metadata.field AND metadata.contribution = contribution.id AND contribution.doc = %(doc)s AND (metadata.status = 2 OR metadata.status = 1) GROUP BY field.id);' % {'doc': doc.id})[0][0] > 0)
+    )
+
     # Get fields for the document's project
     fields = db(db.field.project==doc.project.id).select()
+    # Get ids of contributions for the doc
+    contributions = db(db.contribution.doc == doc.id).select()
 
     # Construct a list of fields for use in a form factory, with the defined field type
     formfields = []
     for item in fields:
+        # Check if field has accepted data
+        accept = db((db.metadata.contribution.belongs(contributions)) & (db.metadata.field == item.id) & (db.metadata.status == 2)).select()
+        if accept:
+            continue
         formfields.append(Field(item.name, type=item.status.fname))
 
     # Construct an SQLFORM from the generated list of fields
@@ -72,7 +92,7 @@ def contribute():
             items = fields.find(lambda field: field.name == key)
 
             fieldid = -1
-            # web2py is silly this seems to be the only way to actually get a valid Row object from find()
+            # web2py is silly this seems to be the only way to actually get a valid doc object from find()
             for item in items:
                 fieldid = item.id
 
@@ -104,6 +124,13 @@ def review():
     except:
         redirect(URL('project', 'view_mine'))
 
+    # Making this a virtual field doesn't seem to work, so it is duplicated =(
+    doc.active = (
+        (db.executesql('SELECT count(metadata.id) FROM metadata, contribution WHERE metadata.contribution = contribution.id AND metadata.status = 2 AND contribution.doc = %(doc)s;' % {'doc': doc.id})[0][0] < db.executesql('SELECT count(DISTINCT field.id) FROM field, metadata, contribution WHERE field.id = metadata.field AND metadata.contribution = contribution.id AND contribution.doc = %(doc)s;' % {'doc': doc.id})[0][0])
+        & (db.executesql('SELECT count(DISTINCT contribution.id) FROM metadata, contribution WHERE metadata.contribution = contribution.id AND metadata.status = 1 AND contribution.doc = %(doc)s;' % {'doc': doc.id})[0][0] < 3)
+        | (db.executesql('SELECT count(DISTINCT field.id) FROM field, metadata, contribution WHERE field.id = metadata.field AND metadata.contribution = contribution.id AND contribution.doc = %(doc)s AND field.id NOT IN (SELECT field.id FROM field, metadata, contribution WHERE field.id = metadata.field AND metadata.contribution = contribution.id AND contribution.doc = %(doc)s AND (metadata.status = 2 OR metadata.status = 1) GROUP BY field.id);' % {'doc': doc.id})[0][0] > 0)
+    )
+
     # Only allow managers to review documents
     if (doc.project.manager != auth.user_id):
         redirect(URL('project', 'view_mine'))
@@ -111,13 +138,18 @@ def review():
     # Get fields for the document's project
     fields = db(db.field.project==doc.project.id).select()
     # Get ids of contributions for the doc
-    contributions = db(db.contribution.doc == doc.id).select('id')
+    contributions = db(db.contribution.doc == doc.id).select()
 
     # Construct a list of field metadata for use in a form factory
     formfields = []
     for item in fields:
+        # Check if field has accepted data
+        accept = db((db.metadata.contribution.belongs(contributions)) & (db.metadata.field == item.id) & (db.metadata.status == 2)).select()
+        if accept:
+            continue
+
         # Get metadata for each field
-        item.metadata = db((db.metadata.contribution in contributions) & (db.metadata.field == item.id) & (db.metadata.status == 1)).select()
+        item.metadata = db((db.metadata.contribution.belongs(contributions)) & (db.metadata.field == item.id) & (db.metadata.status == 1)).select()
         # Construct fields
         if item.metadata:
             field_options = [(contrib.id, contrib.data_value) for contrib in item.metadata]
@@ -151,7 +183,7 @@ def review():
 
                 if fieldid != -1: # Only use valid fields
                     # Reject all metadata for the field
-                    db((db.metadata.contribution in contributions) & (db.metadata.field == fieldid)).update(status=3)
+                    db((db.metadata.contribution.belongs(contributions)) & (db.metadata.field == fieldid)).update(status=3)
 
                     # Accept selected metadata
                     if value != 0:

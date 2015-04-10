@@ -75,7 +75,7 @@ db.define_table(
     format='%(name)s'
 )
 
-# Table for supplied meta-data
+# Table for supplied metadata
 db.define_table(
     'metadata',
     Field('contribution', 'reference contribution', writable=False, readable=False, required=True),
@@ -84,12 +84,13 @@ db.define_table(
     Field('status', 'reference contribution_status', writable=False, readable=False, required=True),
     format='%(field)s - %(contribution)s'
 )
+# Metadata constraints
 db.metadata.contribution.requires = IS_IN_DB(db, db.contribution.id, '%(doc)s')
 db.metadata.field.requires = IS_IN_DB(db, db.field.id, '%(name)s')
 db.metadata.data_value.requires = IS_NOT_EMPTY()
 db.metadata.status.requires = IS_IN_DB(db, db.contribution_status.id, '%(name)s')
 
-
+# Lookup values (added on first run)
 if db(db.project_status.id > 0).count() == 0:
     db.project_status.insert(name='Closed')
     db.project_status.insert(name='Open')

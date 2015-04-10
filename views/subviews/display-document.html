@@ -5,7 +5,11 @@
         <img src="{{=URL('default', 'download', args=doc.img)}}" class="img-thumbnail margin" alt="{{doc.name}}">
         <p>
             <a href="{{=URL('document', 'view', args=doc.id)}}" class="btn btn-default" role="button">View</a>
-            <a href="{{=URL('document', 'contribute', args=doc.id)}}" class="btn btn-default" role="button">Contribute</a>
+            {{if doc.active:}}
+                <a href="{{=URL('document', 'contribute', args=doc.id)}}" class="btn btn-default" role="button">Contribute</a>
+            {{elif doc.project.manager == auth.user_id:}}
+                <a href="{{=URL('document', 'review', args=doc.id)}}" class="btn btn-default" role="button">Review</a>
+            {{pass}}
         </p>
       </div>
     </div>
