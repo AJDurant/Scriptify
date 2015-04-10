@@ -1,7 +1,7 @@
 <div class="col-md-4">
 	<div class="thumbnail">
 	  <div class="caption center">
-	    <h3>{{=project.title}}</h3>
+	    <h2>{{=project.title}}</h2>
         <div class="row">
             {{for doc in project.documents[:2]:}}
                 <img src="{{=URL('default', 'download', args=doc.img)}}" class="img-responsive margin col-sm-6" alt="{{=doc.name}}">

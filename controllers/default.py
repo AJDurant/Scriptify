@@ -14,6 +14,7 @@ def index():
 
     """
     response.title = "Welcome to Scriptify"
+    response.subtitle = "Latest Projects"
     # Get 5 latest open projects
     projects = db((db.project.id > 0) & (db.project.status == 2)).select(orderby=~db.project.id, limitby=(0, 6))
 
