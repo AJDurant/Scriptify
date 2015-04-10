@@ -62,8 +62,7 @@ def user():
 
     form = auth()
 
-    if request.args(0) == 'profile':
-        pass
+    response.title = "Scriptify"
 
     return locals()
 
