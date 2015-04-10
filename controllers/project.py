@@ -31,15 +31,12 @@ def view():
     except:
         redirect(URL('project', 'index'))
 
-    # Get project documents
-    documents = db(db.doc.project == project.id).select()
-
     response.title = project.title
     response.subtitle = 'Project Documents'
     session.breadcrumb = []
     session.breadcrumb.append(LI(A(pretty(request.controller), _href=URL(r=request, c=request.controller, f='index'))))
     session.breadcrumb.append(LI(A(project.title, _href=URL(r=request, c=request.controller, f=request.function, args=request.args))))
-    return dict(project=project, documents=documents)
+    return dict(project=project)
 
 @auth.requires_login()
 def view_mine():

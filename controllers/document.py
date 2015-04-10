@@ -29,8 +29,8 @@ def view():
         # Get accepted metadata for each field
         item.metadata = db((db.metadata.contribution.belongs(contributions)) & (db.metadata.field == item.id) & (db.metadata.status == 2)).select().first()
 
-    response.title = 'View'
-    response.subtitle = doc.name + ' (' + doc.project.title + ')'
+    response.title = doc.name + ' (' + doc.project.title + ')'
+    response.subtitle = 'View'
     session.breadcrumb = []
     session.breadcrumb.append(LI(A(pretty('project'), _href=URL(r=request, c='project', f='index'))))
     session.breadcrumb.append(LI(A(doc.project.title, _href=URL(r=request, c='project', f='view', args=doc.project))))
@@ -93,8 +93,8 @@ def contribute():
     elif form.errors:
         response.flash = 'Contribution has errors'
 
-    response.title = 'Contribute'
-    response.subtitle = doc.name + ' (' + doc.project.title + ')'
+    response.title = doc.name + ' (' + doc.project.title + ')'
+    response.subtitle = 'Contribute'
     session.breadcrumb = []
     session.breadcrumb.append(LI(A(pretty('project'), _href=URL(r=request, c='project', f='index'))))
     session.breadcrumb.append(LI(A(doc.project.title, _href=URL(r=request, c='project', f='view', args=doc.project))))
@@ -182,8 +182,8 @@ def review():
     else:
         form = "No pending contributions"
 
-    response.title = 'Review'
-    response.subtitle = doc.name + ' (' + doc.project.title + ')'
+    response.title = doc.name + ' (' + doc.project.title + ')'
+    response.subtitle = 'Review'
     session.breadcrumb = []
     session.breadcrumb.append(LI(A(pretty('project'), _href=URL(r=request, c='project', f='index'))))
     session.breadcrumb.append(LI(A(doc.project.title, _href=URL(r=request, c='project', f='view', args=doc.project))))
