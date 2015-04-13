@@ -2,7 +2,7 @@
     <div class="thumbnail">
       <div class="caption center">
         <h2>{{=doc.name}}</h2>
-        <img src="{{=URL('default', 'download', args=doc.img)}}" class="img-thumbnail margin" alt="{{doc.name}}">
+        <img src="{{=URL('default', 'download', args=doc.img)}}" class="img-thumbnail margin" alt="{{=doc.name}}">
         <p>
             <a href="{{=URL('document', 'view', args=doc.id)}}" class="btn btn-default" role="button">View</a>
             {{if doc.active:}}
