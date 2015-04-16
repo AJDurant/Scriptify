@@ -93,19 +93,19 @@ Based upon the defualt web2py layout, but edited
 
             </section>
 
-            <footer class="footer row" id="footer">
-                <div class="">
-                    {{block footer}} <!-- this is default footer -->
-                    <div class="copyright pull-left">{{=T('Copyright')}} &#169; {{=request.now.year}}</div>
-                    <div id="poweredBy" class="pull-right">
-                        {{=T('Powered by')}}
-                        <a href="http://www.web2py.com/">web2py</a>
-                    </div>
-                    {{end}}
-                </div>
-            </footer>
-
         </div>
+
+        <footer class="footer" id="footer">
+            <div class="">
+                {{block footer}} <!-- this is default footer -->
+                <div class="copyright pull-left">{{=T('Copyright')}} &#169; {{=request.now.year}}</div>
+                <div id="poweredBy" class="pull-right">
+                    {{=T('Powered by')}}
+                    <a href="http://www.web2py.com/">web2py</a>
+                </div>
+                {{end}}
+            </div>
+        </footer>
 
         {{include 'web2py_ajax.html'}}
     </body>
