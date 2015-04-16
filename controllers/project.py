@@ -107,7 +107,7 @@ def add_doc():
     form = SQLFORM(
         db.doc,
         buttons = [
-            TAG.button('Save Document', _class="btn btn-primary", _type="submit"),
+            TAG.button('Upload Document', _class="btn btn-primary", _type="submit"),
             TAG.button('Next', _class="btn btn-success pull-right", _type="button", _onClick = "window.location='%s'" % URL('add_field', args=project.id))
         ],
         formstyle='bootstrap3_inline'
@@ -196,6 +196,44 @@ def open():
     redirect(URL(request.http_referer))
 
 @auth.requires_login()
+def delete_doc():
+    """
+    Allow managers delete docs
+
+    """
+    # Get project or redirect
+    try:
+        doc = db.doc(request.args(0,cast=int))
+        if doc is None:
+            raise LookupError
+    except:
+        redirect(request.env.http_referer)
+
+    if (doc.project.manager == auth.user_id):
+        doc.delete_record()
+
+    redirect(URL(request.http_referer))
+
+@auth.requires_login()
+def delete_field():
+    """
+    Allow managers delete field
+
+    """
+    # Get project or redirect
+    try:
+        field = db.field(request.args(0,cast=int))
+        if field is None:
+            raise LookupError
+    except:
+        redirect(request.env.http_referer)
+
+    if (field.project.manager == auth.user_id):
+        field.delete_record()
+
+    redirect(URL(request.http_referer))
+
+@auth.requires_login()
 def close():
     """
     Allow managers to close their projects
@@ -230,4 +268,4 @@ def delete():
     if (project.manager == auth.user_id):
         project.delete_record()
 
-    redirect(URL('project', 'view_mine'))
+    redirect(URL(request.http_referer))

@@ -2,9 +2,9 @@
 
 <div class="col-md-4">
     <h3>Current Documents</h3>
-    <ul>
+    <ul class="doc-list">
         {{for doc in docs:}}
-            <li>{{=doc.name}}
+            <li class="doc-item">{{=doc.name}} <a class="btn btn-xs btn-danger pull-right" href="{{=URL('project', 'delete_doc', args=doc.id)}}" role="button">Delete</a>
                 <img src="{{=URL('default', 'download',args=doc.img)}}" class="img-responsive" align="right">
             </li>
         {{pass}}

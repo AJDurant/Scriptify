@@ -4,7 +4,10 @@
     <h3>Current Fields</h3>
     <ul>
         {{for field in fields:}}
-            <li>{{=field.name}} - {{=field.status.name}}</li>
+            <li>
+                {{=field.name}} - {{=field.status.name}}
+                <a class="btn btn-xs btn-danger" href="{{=URL('project', 'delete_field', args=field.id)}}" role="button">Delete</a>
+            </li>
         {{pass}}
     </ul>
 </div>
