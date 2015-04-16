@@ -35,11 +35,13 @@ def view():
     response.title = project.title
     response.subtitle = 'Project Documents'
 
+    fields = db(db.field.project==project.id).select()
+
     session.breadcrumb = []
     session.breadcrumb.append(LI(A(pretty(request.controller), _href=URL(r=request, c=request.controller, f='index'))))
     session.breadcrumb.append(LI(A(project.title, _href=URL(r=request, c=request.controller, f=request.function, args=request.args))))
 
-    return dict(project=project)
+    return dict(project=project, fields=fields)
 
 @auth.requires_login()
 def view_mine():
@@ -68,7 +70,7 @@ def create():
 
     # Construct form for project creation
     form = SQLFORM(db.project,
-        submit_button='Save and Add Fields',
+        submit_button='Save Project and Continue',
         formstyle='bootstrap3_inline')
 
     # Assign manager to the current user
@@ -77,54 +79,9 @@ def create():
 
     if form.process().accepted:
         session.flash = 'Project Saved'
-        redirect(URL('add_field', args=form.vars.id))
+        redirect(URL('add_doc', args=form.vars.id))
 
     return dict(form=form)
-
-@auth.requires_login()
-def add_field():
-    """
-    Allow users to add fields to a project
-    There are two paths
-     - loop back to save the field and add another
-     - move forward to add documents
-
-    """
-    # Get project or redirect
-    try:
-        project = db.project(request.args(0,cast=int))
-        if project is None:
-            raise LookupError
-    except:
-        redirect(URL('project', 'create'))
-
-    response.title = project.title
-    response.subtitle = "Add Field"
-
-    # Construct form for project fields - buttons to save the field and to move onward in the form
-    form = SQLFORM(
-        db.field,
-        buttons = [
-            TAG.button('Save Field', _class="btn btn-primary", _type="submit"),
-            TAG.button('Add Documents', _class="btn btn-success pull-right", _type="button", _onClick = "window.location='%s'" % URL('add_doc', args=project.id))
-        ],
-        formstyle='bootstrap3_inline')
-
-    # Assign the project id
-    form.vars.project = project.id
-
-    if form.process().accepted:
-        response.flash = 'Field Saved'
-
-    # Load existing fields - this is done after form processing so that any new ones are also included
-    fields = db(db.field.project==project.id).select()
-
-    session.breadcrumb = []
-    session.breadcrumb.append(LI(A(pretty(request.controller), _href=URL(r=request, c=request.controller, f='index'))))
-    session.breadcrumb.append(LI(A(project.title, _href=URL(r=request, c=request.controller, f='view', args=request.args))))
-    session.breadcrumb.append(LI(A(pretty(request.function), _href=URL(r=request, c=request.controller, f=request.function, args=request.args))))
-
-    return dict(fields=fields, form=form)
 
 @auth.requires_login()
 def add_doc():
@@ -151,7 +108,7 @@ def add_doc():
         db.doc,
         buttons = [
             TAG.button('Save Document', _class="btn btn-primary", _type="submit"),
-            TAG.button('Finish', _class="btn btn-success pull-right", _type="button", _onClick = "window.location='%s'" % URL('view_mine'))
+            TAG.button('Next', _class="btn btn-success pull-right", _type="button", _onClick = "window.location='%s'" % URL('add_field', args=project.id))
         ],
         formstyle='bootstrap3_inline'
     )
@@ -173,6 +130,53 @@ def add_doc():
     return dict(docs=docs, form=form)
 
 @auth.requires_login()
+def add_field():
+    """
+    Allow users to add fields to a project
+    There are two paths
+     - loop back to save the field and add another
+     - move forward to add documents
+
+    """
+    # Get project or redirect
+    try:
+        project = db.project(request.args(0,cast=int))
+        if project is None:
+            raise LookupError
+    except:
+        redirect(URL('project', 'create'))
+
+    response.title = project.title
+    response.subtitle = "Add Field"
+
+    # Construct form for project fields - buttons to save the field and to move onward in the form
+    form = SQLFORM(
+        db.field,
+        buttons = [
+            TAG.button('Save Field', _class="btn btn-primary", _type="submit"),
+            TAG.button('Next', _class="btn btn-success pull-right", _type="button", _onClick = "window.location='%s'" % URL('view', args=project.id)),
+            TAG.button('Back', _class="btn btn-default pull-right", _type="button", _onClick = "window.location='%s'" % URL('add_doc', args=project.id))
+
+        ],
+        formstyle='bootstrap3_inline')
+
+    # Assign the project id
+    form.vars.project = project.id
+
+    if form.process().accepted:
+        response.flash = 'Field Saved'
+
+    # Load existing fields - this is done after form processing so that any new ones are also included
+    fields = db(db.field.project==project.id).select()
+
+    session.breadcrumb = []
+    session.breadcrumb.append(LI(A(pretty(request.controller), _href=URL(r=request, c=request.controller, f='index'))))
+    session.breadcrumb.append(LI(A(project.title, _href=URL(r=request, c=request.controller, f='view', args=request.args))))
+    session.breadcrumb.append(LI(A(pretty(request.function), _href=URL(r=request, c=request.controller, f=request.function, args=request.args))))
+
+    return dict(fields=fields, form=form)
+
+@auth.requires_login()
 def open():
     """
     Allow managers to open their projects for contributions
@@ -189,7 +193,7 @@ def open():
     if (project.manager == auth.user_id):
         project.update_record(status=2)
 
-    redirect(URL('project', 'view_mine'))
+    redirect(URL(request.http_referer))
 
 @auth.requires_login()
 def close():
@@ -208,7 +212,7 @@ def close():
     if (project.manager == auth.user_id):
         project.update_record(status=1)
 
-    redirect(URL('project', 'view_mine'))
+    redirect(URL(request.http_referer))
 
 def delete():
     """
