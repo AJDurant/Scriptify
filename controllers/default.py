@@ -9,9 +9,9 @@ This is the main application controller
 
 def index():
     """
-    Home page of Scriptify
-    This displays the 5 latest porjects (that are open)
+    Home page of Scriptify.
 
+    This displays the 5 latest porjects (that are open)
     """
     response.title = "Welcome to Scriptify"
     response.subtitle = "Latest Projects"
@@ -23,9 +23,9 @@ def index():
 
 def search():
     """
-    Search Results page
-    displays all projects that match the search term given by q in the request
+    Search Results page.
 
+    displays all projects that match the search term given by q in the request
     """
     if request.vars.q is not None:
         search_request = request.vars.q

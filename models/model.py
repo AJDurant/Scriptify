@@ -68,7 +68,7 @@ db.doc.img.requires = IS_IMAGE(extensions=('png', 'jpg', 'jpeg', 'gif'))
 # Doc complete if all fields have accepted metadata
 db.doc.complete = Field.Virtual(
     'complete',
-    lambda row: (db.executesql('SELECT count(metadata.id) FROM metadata, contribution WHERE metadata.contribution = contribution.id AND metadata.status = 2 AND contribution.doc = %(doc)s;' % {'doc': row.doc.id})[0][0] == db.executesql('SELECT count(DISTINCT field.id) FROM field, metadata, contribution WHERE field.id = metadata.field AND metadata.contribution = contribution.id AND contribution.doc = %(doc)s;' % {'doc': row.doc.id})[0][0])
+    lambda row: (db.executesql('SELECT count(metadata.id) FROM metadata, contribution WHERE metadata.contribution = contribution.id AND metadata.status = 2 AND contribution.doc = %(doc)s;' % {'doc': row.doc.id})[0][0] == db.executesql('SELECT count(DISTINCT field.id) FROM field, doc, project WHERE field.project = project.id AND doc.project = project.id AND doc.id = %(doc)s;' % {'doc': row.doc.id})[0][0])
 )
 
 # Get the active status = not complete AND (less than 3 pending OR field with only rejected data)
