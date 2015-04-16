@@ -11,6 +11,9 @@
         <a class="btn btn-default" href="{{=URL('project', 'add_field', args=project.id)}}" role="button">Add Field</a>
     </div>
     <hr>
+    {{if project.status == 1:}} <!-- If the project is closed -->
+        <p>Remember to open your project to allow contributions!</p>
+    {{pass}}
 {{pass}}
 
 <div class="col-md-8">
