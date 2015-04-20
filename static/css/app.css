@@ -1,5 +1,11 @@
 
+.doc-item img {
+    margin: 5px 0 10px;
+}
 
+p.bg-info {
+    padding: 15px;
+}
 
 
 /* Sticky footer
@@ -22,10 +28,6 @@ body {
     height: 40px;
     background-color: #f5f5f5;
     padding: 10px;
-}
-
-.doc-item img {
-    margin: 5px 0 10px;
 }
 
 
