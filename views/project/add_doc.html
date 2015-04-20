@@ -5,7 +5,7 @@
 </p>
 
 <div class="col-md-4">
-    <h3>Uploaded Documents</h3>
+    <h3>Uploaded documents</h3>
     <ul class="doc-list">
         {{for doc in docs:}}
             <li class="doc-item">{{=doc.name}} <a class="btn btn-xs btn-danger pull-right" href="{{=URL('project', 'delete_doc', args=doc.id)}}" role="button">Delete</a>
@@ -16,7 +16,7 @@
 </div>
 
 <div class="col-md-8">
-    <h3>New Document</h3>
+    <h3>Upload a new document</h3>
     {{ =form }}
 </div>
 
