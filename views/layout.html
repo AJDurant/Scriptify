@@ -54,7 +54,7 @@ Based upon the defualt web2py layout, but edited
                     )}}
                     {{pass}}
 
-                    <form class="navbar-form navbar-right" method="put" action="{{=URL('default', 'search')}}" role="search">
+                    <form class="navbar-form navbar-right" method="POST" action="{{=URL('default', 'search')}}" role="search">
                         <div class="form-group">
                             <label class="sr-only" for="searchField">Search</label>
                             <input id="searchField" name="q" type="text" class="form-control" placeholder="Search">
