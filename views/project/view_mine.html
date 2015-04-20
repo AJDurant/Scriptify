@@ -15,9 +15,9 @@
       <td>{{=project.status.name}}</td>
       <td>
         {{if project.status == 1:}} <!-- If the project is closed -->
-        <a class="btn btn-success" href="{{=URL('project', 'open', args=project.id)}}">Open</a>
+        <a class="btn btn-success" href="{{=URL('project', 'open', args=project.id)}}">Publish</a>
         {{elif project.status == 2:}} <!-- If the project is open -->
-        <a class="btn btn-default" href="{{=URL('project', 'close', args=project.id)}}">Close</a>
+        <a class="btn btn-default" href="{{=URL('project', 'close', args=project.id)}}">Unpublish</a>
         {{pass}}
         <a class="btn btn-danger" href="{{=URL('project', 'delete', args=project.id)}}">Delete</a>
       </td>
