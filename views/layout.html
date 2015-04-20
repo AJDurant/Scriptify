@@ -31,7 +31,9 @@ Based upon the defualt web2py layout, but edited
     </head>
 
     <body>
-
+    <div id="skiptocontent">
+        <a href="#main">Skip to main content</a>
+    </div>
         <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
             <div class="container-fluid">
                 <!-- Brand and toggle get grouped for better mobile display -->
@@ -85,7 +87,7 @@ Based upon the defualt web2py layout, but edited
                 {{pass}}
             </header>
 
-            <section id="main" class="main row">
+            <section id="main" role="main" tabindex="-1" class="main row">
 
                 {{block center}}
                 {{include}}
