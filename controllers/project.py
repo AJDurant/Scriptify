@@ -77,6 +77,9 @@ def create():
     form.vars.manager = auth.user_id
     form.vars.status = 1 # Project status - closed.
 
+    # Autofocus to first field
+    form.custom.widget.title['_autofocus'] = True
+
     if form.process().accepted:
         session.flash = 'Project Saved'
         redirect(URL('add_doc', args=form.vars.id))
@@ -115,6 +118,9 @@ def add_doc():
 
     # Assign the project id
     form.vars.project = project.id
+
+    # Autofocus to first field
+    form.custom.widget.name['_autofocus'] = True
 
     if form.process().accepted:
         response.flash = 'Document Saved'
@@ -162,6 +168,9 @@ def add_field():
 
     # Assign the project id
     form.vars.project = project.id
+
+    # Autofocus to first field
+    form.custom.widget.name['_autofocus'] = True
 
     if form.process().accepted:
         response.flash = 'Field Saved'
