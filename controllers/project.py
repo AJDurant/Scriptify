@@ -111,7 +111,7 @@ def add_doc():
         db.doc,
         buttons = [
             TAG.button('Upload Document', _class="btn btn-primary", _type="submit"),
-            TAG.button('Next', _class="btn btn-success pull-right", _type="button", _onClick = "window.location='%s'" % URL('add_field', args=project.id))
+            TAG.button('Next', _class="btn btn-success pull-right", _type="button", _title="Upload document before clicking next", data={'toggle':'tooltip', 'placement':'bottom'}, _onClick = "window.location='%s'" % URL('add_field', args=project.id))
         ],
         formstyle='bootstrap3_inline'
     )
@@ -153,14 +153,14 @@ def add_field():
         redirect(URL('project', 'create'))
 
     response.title = project.title
-    response.subtitle = "Add Field"
+    response.subtitle = "Add Section"
 
     # Construct form for project fields - buttons to save the field and to move onward in the form
     form = SQLFORM(
         db.field,
         buttons = [
-            TAG.button('Save Field', _class="btn btn-primary", _type="submit"),
-            TAG.button('Next', _class="btn btn-success pull-right", _type="button", _onClick = "window.location='%s'" % URL('view', args=project.id)),
+            TAG.button('Save Section', _class="btn btn-primary", _type="submit"),
+            TAG.button('Next', _class="btn btn-success pull-right", _type="button", _title="Save section before clicking next", data={'toggle':'tooltip', 'placement':'bottom'}, _onClick = "window.location='%s'" % URL('view', args=project.id)),
             TAG.button('Back', _class="btn btn-default pull-right", _type="button", _onClick = "window.location='%s'" % URL('add_doc', args=project.id))
 
         ],
