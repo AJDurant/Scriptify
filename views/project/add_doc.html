@@ -6,13 +6,16 @@
 
 <div class="col-md-4">
     <h3>Uploaded documents</h3>
-    <ul class="doc-list">
-        {{for doc in docs:}}
-            <li class="doc-item">{{=doc.name}} <a class="btn btn-xs btn-danger pull-right" href="{{=URL('project', 'delete_doc', args=doc.id)}}" role="button">Delete</a>
+    <div class="row">
+        {{for i, doc in enumerate(docs):}}
+            {{if (i % 2 == 0) & (i > 0):}}
+                </div><div class="row">
+            {{pass}}
+            <div class="col-md-6 doc-item">{{=doc.name}} <a class="btn btn-xs btn-danger pull-right" href="{{=URL('project', 'delete_doc', args=doc.id)}}" role="button">Delete</a>
                 <img src="{{=URL('default', 'download',args=doc.img)}}" class="img-responsive" align="right">
-            </li>
+            </div>
         {{pass}}
-    </ul>
+    </div>
 </div>
 
 <div class="col-md-8">
