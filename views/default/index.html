@@ -1,7 +1,10 @@
 {{extend 'layout.html'}}
 
 <div class="row">
-	{{for project in projects:}}
+	{{for i, project in enumerate(projects):}}
+        {{if (i % 3 == 0) & (i > 0):}}
+            </div><div class="row">
+        {{pass}}
 		{{include "subviews/display-project.html"}}
 	{{pass}}
 </div>
