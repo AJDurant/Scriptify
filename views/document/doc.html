@@ -1,5 +1,11 @@
 {{extend 'layout.html'}}
 
+{{if request.function == 'contribute':}}
+    <p class="bg-info">
+        Fill in as many sections as seem relevant to the document. Some sections may not be relevant to a specific document in a project.
+    </p>
+{{pass}}
+
 <div class="row">
     <div class="col-md-6">
         {{=form}}

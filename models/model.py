@@ -38,26 +38,27 @@ db.define_table(
 db.define_table(
     'field',
     Field('project', 'reference project', writable=False, readable=False, required=True),
-    Field('name', required=True, label='Field Name'),
-    Field('status', 'reference field_type', required=True, label='Field Type'),
+    Field('name', required=True, label='Section Name', comment='Give your section a descriptive name so the transcribers understand what the content you want is'),
+    Field('status', 'reference field_type', required=True, label='Section Type', comment='A Title or Date section might be short text, but Journal Content would be long text'),
     format='%(project)s: %(name)s'
 )
 # Field data constraints
 db.field.project.requires = IS_IN_DB(db, db.project.id, '%(title)s')
 db.field.name.requires = IS_NOT_EMPTY()
-db.field.status.requires = IS_IN_DB(db, db.field_type.id, '%(name)s', error_message='You must select a field type')
+db.field.status.requires = IS_IN_DB(db, db.field_type.id, '%(name)s', error_message='You must select a section type')
 
 # Table for Project documents
 db.define_table(
     'doc',
     Field('project', 'reference project', writable=False, readable=False, required=True),
-    Field('name', required=True, label='Document Name'),
+    Field('name', required=True, label='Document Name', comment='Give your document image a name to define it (e.g. Page 1)'),
     Field('img',
         'upload',
         label='Document Image',
         autodelete=True,
         uploadseparate=True,
-        required=True),
+        required=True,
+        comment='You can only upload one document as a time, as you need to provide a name for each.'),
     format='%(name)s'
 )
 # Document data constraints

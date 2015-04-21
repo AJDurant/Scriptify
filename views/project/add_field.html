@@ -1,11 +1,12 @@
 {{extend 'layout.html'}}
 
-<p>
-    Add the fields you want transcribed for your documents in this project. (e.g. Title - Short Text, Date - Short Text, Content - Long Text)
+<p class="bg-info">
+    Add all the sections you want transcribed for your documents in this project.<br>
+    Some sections may only appear on some of your documents, but you should still add these if you want them to be transcribed.
 </p>
 
 <div class="col-md-4">
-    <h3>Current Fields</h3>
+    <h3>Saved project sections</h3>
     <ul>
         {{for field in fields:}}
             <li>
@@ -17,7 +18,7 @@
 </div>
 
 <div class="col-md-8">
-    <h3>New Field</h3>
+    <h3>Add a new project section</h3>
     {{ =form }}
 </div>
 

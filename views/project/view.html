@@ -3,12 +3,12 @@
 {{if project.manager == auth.user_id:}}
     <div class="pull-right">
         {{if project.status == 1:}} <!-- If the project is closed -->
-            <a class="btn btn-success" href="{{=URL('project', 'open', args=project.id)}}">Open</a>
+            <a class="btn btn-success" href="{{=URL('project', 'open', args=project.id)}}">Publish</a>
         {{elif project.status == 2:}} <!-- If the project is open -->
-            <a class="btn btn-default" href="{{=URL('project', 'close', args=project.id)}}">Close</a>
+            <a class="btn btn-default" href="{{=URL('project', 'close', args=project.id)}}">Unpublish</a>
         {{pass}}
         <a class="btn btn-default" href="{{=URL('project', 'add_doc', args=project.id)}}" role="button">Add Document</a>
-        <a class="btn btn-default" href="{{=URL('project', 'add_field', args=project.id)}}" role="button">Add Field</a>
+        <a class="btn btn-default" href="{{=URL('project', 'add_field', args=project.id)}}" role="button">Add Section</a>
     </div>
     <hr>
     {{if project.status == 1:}} <!-- If the project is closed -->
@@ -22,7 +22,7 @@
 {{ pass }}
 </div>
 <div class="col-md-4">
-    <h3>Project Fields</h3>
+    <h3>Project Sections</h3>
     <ul>
         {{for field in fields:}}
             <li>{{=field.name}} - {{=field.status.name}}</li>
